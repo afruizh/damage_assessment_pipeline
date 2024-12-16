@@ -1,8 +1,7 @@
 # damage_assessment_pipeline
 AI-powered tool for spidermite damage assessment in tropical grasses
 
-
-![Damage Assessment Web App Screenshot](./res/webapp.png)
+[![Damage Assessment Web App Screenshot](./res/webapp.png)](https://huggingface.co/spaces/anfruizhu/phenotyping_pipeline)
 
 ## Overview
 The **damage_assessment_pipeline** is the initial version of an AI-powered tool designed for assessing spidermite damage in tropical grasses. This software uses advanced image processing and machine learning models to perform damage classification for field images and plant segmentation using a salient object detection approach. Further refinement of models and fine-tuning is being actively researched. A deployed Gradio web application version is available on Hugging Face for online use, and users can also run the tool locally.
