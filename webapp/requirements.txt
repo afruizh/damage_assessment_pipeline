@@ -1,0 +1,11 @@
+matplotlib
+numpy
+opencv-python
+pillow
+scikit-image
+scikit-learn
+torch
+torchvision
+gradio
+onnxruntime
+rasterio
