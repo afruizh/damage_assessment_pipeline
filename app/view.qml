@@ -13,11 +13,22 @@ ApplicationWindow {
     title: qsTr("Phenotyping Pipeline")
     minimumWidth: 630
 
+    // Rectangle {
+    //     anchors.fill: parent        
+    //     gradient: Gradient {
+    //         GradientStop { position: 0.0; color: "#cfcfcf" }
+    //         GradientStop { position: 1.0; color: "transparent" }
+    //     }
+    // }
+
     menuBar: MenuBar {
         Menu {
             title: qsTr("&File")
             MenuSeparator { }
-            Action { text: qsTr("&Quit") }
+            Action { 
+                text: qsTr("&Quit") 
+                onTriggered: Qt.quit()
+            }
         }
         Menu {
             title: qsTr("&Help")
@@ -53,7 +64,7 @@ ApplicationWindow {
     //     }
     // }
 
-     Window {
+    Window {
         id: aboutWindow
         title: qsTr("About")
         width: 630
@@ -136,27 +147,9 @@ ApplicationWindow {
 
     }
 
-    MessageDialog {
-        id: infoDialog
-        title: qsTr("Process Completed")
-        text: qsTr("The process has finished successfully.")
-        buttons: MessageDialog.Ok | MessageDialog.Open
-        onButtonClicked: function (button, role) {
-            switch (button) {
-            case MessageDialog.Open:
-                processorInterface.openOutputFile(outputFilePath.text)
-                break;
-            }
-        }
-    }
+    
 
-    Connections {
-        target: processorInterface
-        onFinished: {
-            loadingIndicator.visible = false  // Show loading indicator
-            infoDialog.open()
-        }
-    }
+    
 
     ColumnLayout {
         anchors.fill: parent
@@ -230,115 +223,107 @@ ApplicationWindow {
     
         }
 
-
-        
-
         // Main Layout
-    Column {
-        anchors.fill: parent
-        spacing: 10
+        ColumnLayout {
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            spacing: 10
 
-        // Styled TabBar
-        TabBar {
-            id: tabBar
-            width: parent.width
+            // Styled TabBar
+            TabBar {
+                id: tabBar
+                Layout.fillWidth: true
 
-            TabButton {
-                text: qsTr("Home")
-
-            }
-            TabButton {
-                text: qsTr("Settings")
-
-            }
-            TabButton {
-                text: qsTr("Profile")
-
-            }
-        }
-
-        // StackLayout to switch tabs
-        StackLayout {
-            currentIndex: tabBar.currentIndex
-            anchors.fill: parent
-
-            Item {
-                Column {
-                    anchors.centerIn: parent
-                    spacing: 10
-
-                    Text {
-                        text: qsTr("Welcome to the Home Tab!")
-                        font.pixelSize: 18
-                        color: "#2c3e50"
-                    }
+                TabButton { 
+                    text: qsTr("Damage Classification")
                 }
+
+                // TabButton {
+                //     text: qsTr("Home")
+
+                // }
+                // TabButton {
+                //     text: qsTr("Settings")
+
+                // }
+                // TabButton {
+                //     text: qsTr("Profile")
+
+                // }
             }
 
-            Item {
-                Column {
-                    anchors.centerIn: parent
-                    spacing: 10
+            // StackLayout to switch tabs
+            StackLayout {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                currentIndex: tabBar.currentIndex
 
-                    Text {
-                        text: qsTr("Settings Page")
-                        font.pixelSize: 18
-                        color: "#2c3e50"
-                    }
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
 
-                    Switch {
-                        text: qsTr("Enable Notifications")
+
+                    ClassificationPage {
+                        id: classificationPage
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
                     }
+                    
                 }
-            }
 
-            Item {
-                Column {
-                    anchors.centerIn: parent
-                    spacing: 10
+                // Item {
+                //     Column {
+                //         anchors.centerIn: parent
+                //         spacing: 10
 
-                    Text {
-                        text: qsTr("User Profile")
-                        font.pixelSize: 18
-                        color: "#2c3e50"
-                    }
+                //         Text {
+                //             text: qsTr("Welcome to the Home Tab!")
+                //             font.pixelSize: 18
+                //             color: "#2c3e50"
+                //         }
+                //     }
+                    
+                // }
 
-                    Button {
-                        text: qsTr("Edit Profile")
-                        onClicked: console.log("Edit Profile Clicked")
-                    }
-                }
-            }
-        }
-    }
+                // Item {
+                //     Column {
+                //         anchors.centerIn: parent
+                //         spacing: 10
 
+                //         Text {
+                //             text: qsTr("Settings Page")
+                //             font.pixelSize: 18
+                //             color: "#2c3e50"
+                //         }
 
-    }
+                //         Switch {
+                //             text: qsTr("Enable Notifications")
+                //         }
+                //     }
+                // }
 
-    Rectangle {
-        id: loadingIndicator
-        anchors.fill: parent
-        color:"transparent"
-        visible: false  // Initially hidden
+                // Item {
+                //     Column {
+                //         anchors.centerIn: parent
+                //         spacing: 10
 
-        BusyIndicator {
-            anchors.centerIn: parent
-            width: 100
-            height: 100
-        }
+                //         Text {
+                //             text: qsTr("User Profile")
+                //             font.pixelSize: 18
+                //             color: "#2c3e50"
+                //         }
 
-        MouseArea {
-            anchors.fill: parent
-            hoverEnabled: true  // Enables capturing hover events
-            acceptedButtons: Qt.AllButtons  // Block all mouse buttons
-            onClicked: {
-                console.log("Rectangle clicked")
-            }
-            onPositionChanged: {
-                console.log("Hover detected")
+                //         Button {
+                //             text: qsTr("Edit Profile")
+                //             onClicked: console.log("Edit Profile Clicked")
+                //         }
+                //     }
+                // }
             }
         }
 
 
     }
+
+    
 }

@@ -17,6 +17,7 @@ import cv2 as cv
 import numpy as np
 
 MODEL_PATH = "./models"
+MODEL_PATH = r"\\CATALOGUE.CGIARAD.ORG\AcceleratedBreedingInitiative\1.Data\16. Spidermites_AdrianK\models\onnx"
 
 
 def rescale_t(image, target_size=320):
@@ -321,8 +322,8 @@ class DamageClassifier():
 
         np_res = outputs[0][0]
         
-        if model_name != "Regnet":
-            np_res = softmax(np_res)
+        #if model_name != "Regnet":
+        np_res = softmax(np_res)
 
         final_res = {'0-(No damage)': np_res[0]
                         ,'1-3-(Moderately damaged)': np_res[1]
