@@ -76,6 +76,34 @@ This project uses models and code from [**https://github.com/xuebinqin/U-2-Net**
 
 [![Damage Assessment Desktop App Screenshot](./res/app_small.png)](https://huggingface.co/spaces/anfruizhu/phenotyping_pipeline)
 
+### Deployment
+
+```bash
+cd app
+pyside6-deploy gui.py --init
+
+```
+ Use 
+ mode = standalone
+ mode = release
+ arch = "x86_64"
+
+```bash
+pyside6-deploy -c pysidedeploy.spec
+
+```
+dumpbin
+vcvarshall
+
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build
+
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" "amd64"
+
+add to path 
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\bin\Hostx64\x64
+
+ 
+
 ## License
 This project is licensed under the Apache-2.0 license.
 

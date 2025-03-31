@@ -1,15 +1,14 @@
 import cv2 as cv
 import numpy as np
-from PIL import Image
 import glob
 import pathlib
 
 import os
 
 import pandas as pd
-from openpyxl import Workbook
+#from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment
-from openpyxl.utils.dataframe import dataframe_to_rows
+#from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
 import onnxruntime as ort
@@ -17,7 +16,7 @@ import cv2 as cv
 import numpy as np
 
 MODEL_PATH = "./models"
-MODEL_PATH = r"\\CATALOGUE.CGIARAD.ORG\AcceleratedBreedingInitiative\1.Data\16. Spidermites_AdrianK\models\onnx"
+#MODEL_PATH = r"\\CATALOGUE.CGIARAD.ORG\AcceleratedBreedingInitiative\1.Data\16. Spidermites_AdrianK\models\onnx"
 
 
 def rescale_t(image, target_size=320):

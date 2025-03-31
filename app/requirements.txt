@@ -4,8 +4,5 @@ opencv-python
 pillow
 scikit-image
 scikit-learn
-torch
-torchvision
-onnxruntime
-rasterio
+onnxruntime-gpu
 pyside6
