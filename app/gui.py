@@ -1,33 +1,28 @@
-# https://stackoverflow.com/questions/71379394/qml-zoom-in-on-an-image-with-x-and-y-but-center-it-when-zooming-out
-# https://stackoverflow.com/questions/55310051/displaying-pandas-dataframe-in-qml
-# https://stackoverflow.com/questions/77705359/qml-image-inside-flickable-zoom-shifts-and-clips
-# https://forum.qt.io/topic/80720/qml-image-comparison-slider
-
-
 import sys
 import os
 
-from PySide6.QtGui import QGuiApplication
+#from PySide6.QtGui import QGuiApplication
+from PySide6.QtWidgets import QApplication
 from PySide6.QtQml import QQmlApplicationEngine
+from PySide6.QtCore import QObject, QUrl, Slot, Signal
+from PySide6.QtWidgets import QSplashScreen
+from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QIcon
+from PySide6.QtCore import QThread
+# from PySide6.QtCore import QSize
+# from PySide6.QtGui import Qt
 
 from PySide6.QtCore import QUrl
+# from PySide6.QtCore import QTimer
+# import PySide6.QtCore as QtCore
+# from PySide6.QtCore import Qt, QFileSystemWatcher, QSettings, Property
+# from PySide6.QtCore import QStringListModel
 
-import PySide6.QtCore as QtCore
-
-from PySide6.QtCore import Qt, QFileSystemWatcher, QSettings, Signal, Property, Slot
-
-from PySide6.QtCore import QObject, QUrl, Slot, Signal
-
-from PySide6.QtCore import QStringListModel, QUrl
-
-import pandas as pd
-import numpy as np
-
-import sys
-
-from PySide6.QtCore import QObject, Signal, Slot, QThread
+# import pandas as pd
+# import numpy as np
 
 from bgremover import DamageClassifier
+
 
 class Worker(QThread):
     finished = Signal()  # Signal emitted when the thread finishes processing
@@ -109,15 +104,36 @@ class ProcessorInterface(QObject):
         else:
             print(f"Output file not found: {output_file}")
 
-
 if __name__ == "__main__":
+
+    #app = QGuiApplication(sys.argv)
+    app = QApplication(sys.argv)
+    app.setWindowIcon(QIcon("icon.png"))
+
+    # Create the splash screen.  Use a QPixmap for image loading.
+    splash_pix = QPixmap("gd_logo_small.png")
+    if not splash_pix.isNull(): # check if the image loaded correctly.
+        splash = QSplashScreen(splash_pix)
+        splash.show()
+        #QTimer.singleShot(3000)
+        app.processEvents()  # Ensure the splash screen is displayed.
+    else:
+        splash = None # if image didn't load, don't show a splash
 
     processorInterface = ProcessorInterface()
 
-    app = QGuiApplication(sys.argv)
     engine = QQmlApplicationEngine()
     engine.quit.connect(app.quit)
     engine.rootContext().setContextProperty("processorInterface", processorInterface)
     engine.load(QUrl("view.qml"))
+
+    if engine.rootObjects():
+        if splash:
+            splash.finish(None)
+    else:
+        print("QML load failed")
+        sys.exit(1)
+
+    
 
     sys.exit(app.exec())

@@ -87,15 +87,9 @@ pyside6-deploy gui.py --init
  mode = standalone
  mode = release
  arch = "x86_64"
- modules = Core,Network,Gui,Qml,OpenGL,Quick,QmlMeta,QuickTemplates2,QuickControls2,QmlWorkerScript,QmlModels
- extra_args = --quiet --noinclude-qt-translations --include-qt-plugins=qml
 
 ```bash
-pyside6-deploy --static-libpython -c pysidedeploy.spec
-
-pyside6-deploy --extra-modules Gui,Core,Network,Qml,Quick,QuickControls2,QmlWorkerScript,QuickTemplates2,OpenGL,QmlMeta,QmlModels -–dry-run -c pysidedeploy.spec
-
-pyside6-deploy --extra-modules Gui,Core,Network,Qml,Quick,QuickControls2,QmlWorkerScript,QuickTemplates2,OpenGL,QmlMeta,QmlModels -c pysidedeploy.spec
+pyside6-deploy -c pysidedeploy.spec
 
 ```
 dumpbin
@@ -108,19 +102,14 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build
 add to path 
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\bin\Hostx64\x64
 
-conda create -n deploy python=3.11
-pip install PySide6
-pip install pandas
-pip install opencv-python
-pip install openpyxl
-pip install onnxruntime-gpu
-
-modules = Gui,Core,Network,Qml,Quick,QuickControls2,QmlWorkerScript,QuickTemplates2,OpenGL,QmlMeta,QmlModels
+ 
 
 ## License
 This project is licensed under the Apache-2.0 license.
 
 ## Authors
-Tropical Forages Team
+![Tropical Forage Program](./res/tf_small.png)
+
+Tropical Forages Progam
 
 Alliance Bioversity International & CIAT

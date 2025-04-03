@@ -235,8 +235,13 @@ ApplicationWindow {
                 Layout.fillWidth: true
 
                 TabButton { 
-                    text: qsTr("Damage Classification")
+                    text: qsTr("Damage Classification Batch Processing")
                 }
+
+                TabButton { 
+                    text: qsTr("Webapp")
+                }
+
 
                 // TabButton {
                 //     text: qsTr("Home")
@@ -265,6 +270,18 @@ ApplicationWindow {
 
                     ClassificationPage {
                         id: classificationPage
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                    }
+                    
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+
+
+                    WebappPage {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                     }
