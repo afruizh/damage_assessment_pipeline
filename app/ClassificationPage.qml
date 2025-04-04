@@ -145,7 +145,7 @@ Rectangle {
 
     Connections {
         target: processorInterface
-        onFinished: {
+        function onFinished() {
             loadingIndicator.visible = false  // Show loading indicator
             infoDialog.open()
         }

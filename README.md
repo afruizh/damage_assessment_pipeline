@@ -84,12 +84,19 @@ pyside6-deploy gui.py --init
 
 ```
  Use 
- mode = standalone
- mode = release
- arch = "x86_64"
+title = GrassDAP
+icon = D:\local_mydev_ciat\damage_assessment_pipeline\app\icon.ico
+
+modules = Core,Gui,Network,Qml,QmlModels,QmlMeta,OpenGL,QmlWorkerScript,QuickControls2,Quick,QuickTemplates2,Widgets,WebEngine,WebEngineCore,WebEngineQuick,WebEngineWidgets
+extra_args = --quiet --noinclude-qt-translations --include-qt-plugins=qml,resources,translations
+mode = standalone
+mode = release
+arch = "x86_64"
 
 ```bash
 pyside6-deploy -c pysidedeploy.spec
+
+pyside6-deploy --extra-modules Core,Gui,Network,Qml,QmlModels,QmlMeta,OpenGL,QmlWorkerScript,QuickControls2,Quick,QuickTemplates2,Widgets,WebEngine,WebEngineCore,WebEngineQuick,WebEngineWidgets -c pysidedeploy.spec
 
 ```
 dumpbin
@@ -101,6 +108,15 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build
 
 add to path 
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\bin\Hostx64\x64
+
+python 3.11 must be used for compatibility with onnxruntime
+
+conda create -n qt python=3.11
+ pip install PySide6
+ pip install pandas
+ pip install opencv-python
+ pip install openpyxl
+ pip install onnxruntime-gpu
 
  
 

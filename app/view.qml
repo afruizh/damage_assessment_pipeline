@@ -10,7 +10,7 @@ ApplicationWindow {
     visible: true
     width: 620
     height: 630
-    title: qsTr("Phenotyping Pipeline")
+    title: qsTr("GrassDAP - Damage Assessment Pipeline")
     minimumWidth: 630
 
     // Rectangle {
@@ -122,9 +122,9 @@ ApplicationWindow {
                             Image {
                                 Layout.fillWidth:true
                                 Layout.fillHeight:true
-                                anchors.fill: parent
+                                //anchors.fill: parent
                                 source: "logo.png"  // Replace with your logo file
-                                anchors.centerIn: parent
+                                //anchors.centerIn: parent
                                 fillMode: Image.PreserveAspectFit
                                 mipmap: true
                             }
@@ -201,9 +201,9 @@ ApplicationWindow {
                             Image {
                                 Layout.fillWidth:true
                                 Layout.fillHeight:true
-                                anchors.fill: parent
+                                //anchors.fill: parent
                                 source: "logo.png"  // Replace with your logo file
-                                anchors.centerIn: parent
+                                //anchors.centerIn: parent
                                 fillMode: Image.PreserveAspectFit
                                 mipmap: true
                             }

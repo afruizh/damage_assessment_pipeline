@@ -13,6 +13,8 @@ from PySide6.QtCore import QThread
 # from PySide6.QtGui import Qt
 
 from PySide6.QtCore import QUrl
+from PySide6.QtWebEngineWidgets import QWebEngineView
+from PySide6.QtWebEngineQuick import QtWebEngineQuick
 # from PySide6.QtCore import QTimer
 # import PySide6.QtCore as QtCore
 # from PySide6.QtCore import Qt, QFileSystemWatcher, QSettings, Property

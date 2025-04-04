@@ -1,0 +1,3 @@
+[tool.pyside6-deploy]
+project-dir = ".."
+console = false
