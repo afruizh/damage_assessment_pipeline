@@ -24,6 +24,7 @@ from PySide6.QtWebEngineQuick import QtWebEngineQuick
 # import numpy as np
 
 from bgremover import DamageClassifier
+from bgremover import BackgroundRemover
 
 
 class Worker(QThread):
@@ -45,12 +46,31 @@ class Worker(QThread):
         print("Processing finished!")
         self.finished.emit()
 
+class WorkerSeg(QThread):
+    finished = Signal()  # Signal emitted when the thread finishes processing
+
+    def __init__(self, input_folder, output_folder):
+        super().__init__()
+        self.input_folder = input_folder
+        self.output_folder = output_folder
+
+    def run(self):
+        """Long-running task."""
+        import time
+        print("Processing started...")
+        self.background_remover =  BackgroundRemover()
+        print(self.input_folder, self.output_folder)
+        self.background_remover.batch_processing(self.input_folder, self.output_folder)
+        print("Processing finished!")
+        self.finished.emit()
+
 class ProcessorInterface(QObject):
     msg = Signal(str)
     finished = Signal()
 
     def initialize(self):
         self.damage_classifier =  DamageClassifier()
+        self.background_remover = BackgroundRemover()
 
 
     @Slot()
@@ -77,6 +97,15 @@ class ProcessorInterface(QObject):
 
     @Slot(str, str, str)
     def process(self, input_folder, model, output_file):
+        """Start the background processing in a separate thread."""
+        input_folder = input_folder.replace("file:///","")
+        output_file = output_file.replace("file:///","")
+        self.worker = Worker(input_folder, model, output_file)
+        self.worker.finished.connect(self.onProcessFinished)
+        self.worker.start()
+
+    @Slot(str, str, str)
+    def process_seg(self, input_folder, model, output_file):
         """Start the background processing in a separate thread."""
         input_folder = input_folder.replace("file:///","")
         output_file = output_file.replace("file:///","")

@@ -111,12 +111,16 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.3443
 
 python 3.11 must be used for compatibility with onnxruntime
 
+Create environment to deploy:
+
+```bash
 conda create -n qt python=3.11
- pip install PySide6
- pip install pandas
- pip install opencv-python
- pip install openpyxl
- pip install onnxruntime-gpu
+pip install PySide6
+pip install pandas
+pip install opencv-python
+pip install openpyxl
+pip install onnxruntime-gpu
+```
 
  
 

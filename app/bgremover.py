@@ -15,8 +15,8 @@ import onnxruntime as ort
 import cv2 as cv
 import numpy as np
 
-MODEL_PATH = "./models"
-#MODEL_PATH = r"\\CATALOGUE.CGIARAD.ORG\AcceleratedBreedingInitiative\1.Data\16. Spidermites_AdrianK\models\onnx"
+#MODEL_PATH = "./models"
+MODEL_PATH = r"\\CATALOGUE.CGIARAD.ORG\AcceleratedBreedingInitiative\1.Data\16. Spidermites_AdrianK\models\onnx"
 
 
 def rescale_t(image, target_size=320):
@@ -190,6 +190,25 @@ def softmax(x, axis=0):
     sum_e_x = np.sum(e_x, axis=axis, keepdims=True)
     return e_x / sum_e_x
 
+def normPRED(d):
+    """
+    Normalize the predicted SOD probability map (numpy array) to the range [0, 1].
+
+    Parameters:
+    d (numpy.ndarray): The input probability map.
+
+    Returns:
+    numpy.ndarray: The normalized probability map.
+    """
+    ma = np.max(d)
+    mi = np.min(d)
+    # Prevent division by zero in case ma equals mi
+    if ma - mi == 0:
+        return d
+    dn = (d - mi) / (ma - mi)
+    return dn
+
+
 # class BackgroundRemover():
 
 #     def __init__(self):
@@ -256,7 +275,140 @@ def softmax(x, axis=0):
 
 
 #         return res, binary_mask
-    
+
+class BackgroundRemover():
+
+    def __init__(self):
+        self.ort_sess = None
+
+    def initialize(self, ):
+
+        if self.ort_sess is not None:
+            # Load model
+            model_filepath = os.path.join(MODEL_PATH, "onnx", "custom_u2net.onnx")
+            providers = [
+                ("CUDAExecutionProvider", {
+                    "device_id": 0,
+                })
+            ]
+            self.ort_sess = ort.InferenceSession(model_filepath, providers=providers)
+
+    def inference(self, np_image):
+
+        self.initialize()
+
+        img_prec = np_image
+        w = np_image.shape[1]
+        h = np_image.shape[0]
+        img_prec = rescale_t(img_prec, 320)
+        img_prec = to_tensor_lab(img_prec, 0)
+
+        img_prec = np.expand_dims(img_prec, axis=0)
+
+        #outputs = ort_sess.run(None, {'input': [img.numpy()]})
+
+        outputs = self.ort_sess.run(None, {'input': img_prec})
+
+        pred = outputs[0][:,0,:,:]
+        pred = normPRED(pred)
+        pred = np.squeeze(pred)
+
+        imo = cv.resize(pred, (w,h), cv.INTER_LINEAR )
+        mask = imo*255
+        mask = mask.astype(np.uint8)
+        mask0 = mask
+
+        ret,binary_mask = cv.threshold(mask0,20,255,cv.THRESH_BINARY)
+        binary_mask = np.uint8(binary_mask)
+            
+        return mask, binary_mask
+
+    def inference_file(self, filename, model_name):
+
+        np_image = cv.imread(filename)
+        np_image = cv.cvtColor(np_image, cv.COLOR_BGR2RGB)
+
+        final_res = self.inference(np_image)
+
+        return final_res
+
+    def batch_processing(self, folder, output_folder, format="tiff"):
+
+        processor = BatchProcessor()
+
+        def processFunction(filepath, output_files):
+
+            self.inference_file(filepath, output_files[0])
+
+            #self.results.append({"filepath":filepath, "class":"class1"})
+
+
+        processor.batch_process(input_dir=folder, output_dir=folder, processing_fc=processFunction, pattern = '**/*.' + format )
+
+
+
+    # def remove_background(self, filepath_image):
+
+    #         return imo
+        
+    # def remove_background_save(self, path_in, path_out, path_out_mask = None):
+
+    #     print("remove_background_save")
+
+    #     mask_torch = self.remove_background(path_in)
+    #     mask = mask_torch*255
+    #     mask = mask.astype(np.uint8)
+
+    #     img = cv.imread(path_in)
+    #     mask0 = mask#cv.UMat(cv.imread(mask,0))
+    #     #127
+    #     #200
+    #     ret,binary_mask = cv.threshold(mask0,80,255,cv.THRESH_BINARY)
+    #     binary_mask = np.uint8(binary_mask)
+    #     res = cv.bitwise_and(img,img, mask = binary_mask)
+
+    #     cv.imwrite(path_out, res)
+
+    #     if not (path_out_mask == None):
+    #         cv.imwrite(path_out_mask, mask)
+
+    # def remove_background_dir(self, path_in, path_out):
+
+    #     img_name_list = glob.glob(os.path.join(path_in, "*.jpg"))
+
+    #     for img_name in img_name_list:
+
+    #         img_name_output = img_name.replace(path_in, path_out)
+
+    #         if not os.path.exists(img_name_output):
+    #             self.remove_background_save(img_name, img_name_output)
+    #             print(img_name.replace(path_in, path_out))
+
+    # def apply_mask(self, input, mask, threshold):
+
+    #     mask = cv.cvtColor(mask, cv.COLOR_BGR2GRAY)
+    #     ret,binary_mask = cv.threshold(mask,threshold,255,cv.THRESH_BINARY)
+    #     #binary_mask = np.uint8(binary_mask)
+    #     #binary_mask = mask
+    #     print("apply mask")
+    #     print(input.shape)
+    #     print(input.dtype)
+    #     print(binary_mask.shape)
+    #     print(binary_mask.dtype)
+    #     res = cv.bitwise_and(input,input, mask = binary_mask)
+
+    #     # foreground_alpha = mask.astype(np.float32) / 255.0 
+    #     # # Create a new image to store the result with same size and type as foreground
+    #     # blended_image = np.zeros_like(input)
+
+    #     # # Loop through each pixel and apply alpha based on mask value
+    #     # for channel in range(3):  # Loop through BGR channels
+    #     #     blended_image[:, :, channel] = input[:, :, channel] * foreground_alpha
+
+
+    #     return res, binary_mask
+
+
 class DamageClassifier():
 
     def __init__(self):

@@ -8,7 +8,7 @@ import QtQuick.Effects
 ApplicationWindow {
     id: mainWindow
     visible: true
-    width: 620
+    width: 850
     height: 630
     title: qsTr("GrassDAP - Damage Assessment Pipeline")
     minimumWidth: 630
@@ -96,6 +96,7 @@ ApplicationWindow {
                     ColumnLayout {
                         anchors.fill:parent
                         spacing: 1
+
                         Text {
                             text: '<div style="text-align: left;"><h1>Phenotyping pipeline</h1><p>Modular phenotyping pipeline.</p><h3>Authors</h3><p>Tropical Forages Program, CIAT.</p><h3>Acknowledgments</h3><p>This work was partially funded by Accelerated Breeding Initiative of CGIAR.</p><p></p></div>'
                             //verticalAlignment: Text.AlignVCenter
@@ -172,12 +173,24 @@ ApplicationWindow {
                     Layout.fillHeight: true
                     color: "transparent"
 
-                    ColumnLayout {
+                    RowLayout {
                         anchors.fill:parent
+                        //anchors.alignment: Qt.AlignVCenter
                         spacing: 1
+
+                        Image {
+                            Layout.preferredWidth: 100
+                            source: "gd_logo_small.png"  // Replace with your logo file
+                            //anchors.centerIn: parent
+                            fillMode: Image.PreserveAspectFit
+                            mipmap: true
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
                         Text {
-                            text: '<div style="text-align: left;"><h1>Phenotyping pipeline</h1><p>Modular phenotyping pipeline.<p></p></div>'
-                            //verticalAlignment: Text.AlignVCenter
+                            Layout.alignment: Qt.AlignVCenter
+                            text: '<div style="text-align: left;"><h1>GrassDAP (Damage Assessment Pipeline)</h1><p>Modular phenotyping pipeline.<p></p></div>'
+                            anchors.verticalCenter: parent.verticalCenter
                         }
                         
                     }
@@ -239,6 +252,10 @@ ApplicationWindow {
                 }
 
                 TabButton { 
+                    text: qsTr("Plant Segmentation Batch Processing")
+                }
+
+                TabButton { 
                     text: qsTr("Webapp")
                 }
 
@@ -270,6 +287,19 @@ ApplicationWindow {
 
                     ClassificationPage {
                         id: classificationPage
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                    }
+                    
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+
+
+                    SegmentationPage {
+                        id: segmentationPage
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                     }
