@@ -189,7 +189,7 @@ ApplicationWindow {
 
                         Text {
                             Layout.alignment: Qt.AlignVCenter
-                            text: '<div style="text-align: left;"><h1>GrassDAP (Damage Assessment Pipeline)</h1><p>Modular phenotyping pipeline.<p></p></div>'
+                            text: '<div style="text-align: left;"><h1>GrassDAP</h1><p>Modular Damage Assessment Pipeline using AI models.<p></p></div>'
                             anchors.verticalCenter: parent.verticalCenter
                         }
                         

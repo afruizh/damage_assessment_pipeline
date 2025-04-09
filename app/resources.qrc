@@ -1,0 +1,13 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/">
+    <file>gd_logo_small.png</file>
+    <file>gd_logo.png</file>
+    <file>icon.ico</file>
+    <file>icon.png</file>
+    <file>logo.png</file>
+    <file>view.qml</file>
+    <file>ClassificationPage.qml</file>
+    <file>SegmentationPage.qml</file>
+    <file>WebappPage.qml</file>
+</qresource>
+</RCC>

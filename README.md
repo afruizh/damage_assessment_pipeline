@@ -93,6 +93,11 @@ mode = standalone
 mode = release
 arch = "x86_64"
 
+
+extra_args = --quiet --include-qt-plugins=qml
+extra_args = --quiet --include-qt-plugins=qml --disable-console
+
+
 ```bash
 pyside6-deploy -c pysidedeploy.spec
 
@@ -122,7 +127,7 @@ pip install openpyxl
 pip install onnxruntime-gpu
 ```
 
- 
+pyside6-rcc resources.qrc -o rc_resources.py
 
 ## License
 This project is licensed under the Apache-2.0 license.

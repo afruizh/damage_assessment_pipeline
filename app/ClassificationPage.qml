@@ -47,7 +47,8 @@ Rectangle {
         FolderDialog {
             id: folderDialog
             title: "Select Folder"
-            onAccepted: {folderPath.text = folderDialog.currentFolder
+            onAccepted: {
+                folderPath.text = folderDialog.currentFolder.toString().replace("file:///", "").replace("file://", "//")
             }
         }
 
@@ -92,13 +93,16 @@ Rectangle {
             id: fileDialog
             fileMode: FileDialog.SaveFile
             title: "Select Output File"
-            onAccepted: outputFilePath.text = fileDialog.currentFile
+            onAccepted: {
+                outputFilePath.text = fileDialog.currentFile.toString().replace("file:///", "").replace("file://", "//")
+            }
             nameFilters: ["Excel files (*.xlsx)"]
         }
 
         // Process Button
         RowLayout {
             Button {
+                Layout.fillWidth: true
                 text: "Process"
                 onClicked: {
                     console.log("Processing with folder: " + folderPath.text + ", model: " + modelDropdown.currentText + ", output: " + outputFilePath.text)

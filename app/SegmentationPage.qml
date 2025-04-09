@@ -46,7 +46,8 @@ Rectangle {
         FolderDialog {
             id: folderDialog
             title: "Select Folder"
-            onAccepted: {folderPath.text = folderDialog.currentFolder
+            onAccepted: {
+                folderPath.text = folderDialog.currentFolder.toString().replace("file:///", "").replace("file://", "//")
             }
         }
 
@@ -75,7 +76,8 @@ Rectangle {
         FolderDialog {
             id: outputFolderDialog
             title: "Select Folder"
-            onAccepted: {outputFolderPath.text = outputFolderDialog.currentFolder
+            onAccepted: {
+                outputFolderPath.text = outputFolderDialog.currentFolder.toString().replace("file:///", "").replace("file://", "//")
             }
         }
 
@@ -84,11 +86,12 @@ Rectangle {
         // Process Button
         RowLayout {
             Button {
+                Layout.fillWidth: true
                 text: "Process"
                 onClicked: {
-                    console.log("Processing with folder: " + folderPath.text + ", output: " + outputFolderDialog.text)
+                    console.log("Processing with folder: " + folderPath.text + ", output: " + outputFolderPath.text)
                     loadingIndicator.visible = true  // Show loading indicator
-                    processorInterface.processSeg(folderPath.text, outputFolderPath.text)
+                    processorInterface.process_seg(folderPath.text, outputFolderPath.text)
                 }
             }
         }
@@ -130,7 +133,7 @@ Rectangle {
 
     Connections {
         target: processorInterface
-        function onFinished() {
+        function onFinishedSeg() {
             loadingIndicator.visible = false  // Show loading indicator
             infoDialog.open()
         }

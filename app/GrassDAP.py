@@ -1,5 +1,6 @@
 import sys
 import os
+import subprocess
 
 #from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import QApplication
@@ -25,6 +26,8 @@ from PySide6.QtWebEngineQuick import QtWebEngineQuick
 
 from bgremover import DamageClassifier
 from bgremover import BackgroundRemover
+
+import rc_resources
 
 
 class Worker(QThread):
@@ -67,10 +70,12 @@ class WorkerSeg(QThread):
 class ProcessorInterface(QObject):
     msg = Signal(str)
     finished = Signal()
+    finishedSeg = Signal()
 
     def initialize(self):
-        self.damage_classifier =  DamageClassifier()
-        self.background_remover = BackgroundRemover()
+        #self.damage_classifier =  DamageClassifier()
+        #self.background_remover = BackgroundRemover()
+        pass
 
 
     @Slot()
@@ -104,19 +109,25 @@ class ProcessorInterface(QObject):
         self.worker.finished.connect(self.onProcessFinished)
         self.worker.start()
 
-    @Slot(str, str, str)
-    def process_seg(self, input_folder, model, output_file):
+    @Slot(str, str)
+    def process_seg(self, input_folder, output_folder):
         """Start the background processing in a separate thread."""
         input_folder = input_folder.replace("file:///","")
-        output_file = output_file.replace("file:///","")
-        self.worker = Worker(input_folder, model, output_file)
-        self.worker.finished.connect(self.onProcessFinished)
+        output_folder = output_folder.replace("file:///","")
+        self.worker = WorkerSeg(input_folder, output_folder)
+        self.worker.finished.connect(self.onProcessFinishedSeg)
         self.worker.start()
 
     @Slot(str)    
     def onProcessFinished(self):
         """Handle the process completion."""
         self.finished.emit()
+        print("Process finished signal emitted.")
+
+    @Slot(str)    
+    def onProcessFinishedSeg(self):
+        """Handle the process completion."""
+        self.finishedSeg.emit()
         print("Process finished signal emitted.")
 
     @Slot(str)
@@ -135,14 +146,34 @@ class ProcessorInterface(QObject):
         else:
             print(f"Output file not found: {output_file}")
 
+    @Slot(str)
+    def openOutputFolder(self, output_folder):
+        """Open the output folder in the default file explorer."""
+        if os.path.isdir(output_folder): # Check if it's a valid directory
+            try:
+                if os.name == 'nt':  # Windows
+                    os.startfile(output_folder)
+                elif os.name == 'posix':  # macOS/Linux
+                    if sys.platform == "darwin": # macOS
+                        subprocess.run(["open", output_folder])
+                    else: # Linux
+                        subprocess.run(["xdg-open", output_folder])
+                else:
+                    print(f"Unsupported OS: {os.name}")
+            except Exception as e:
+                print(f"Failed to open folder: {e}")
+        else:
+            print(f"Output folder not found or is not a directory: {output_folder}")
+
+
 if __name__ == "__main__":
 
     #app = QGuiApplication(sys.argv)
     app = QApplication(sys.argv)
-    app.setWindowIcon(QIcon("icon.png"))
+    app.setWindowIcon(QIcon(":/icon.png"))
 
     # Create the splash screen.  Use a QPixmap for image loading.
-    splash_pix = QPixmap("gd_logo_small.png")
+    splash_pix = QPixmap(":/gd_logo_small.png")
     if not splash_pix.isNull(): # check if the image loaded correctly.
         splash = QSplashScreen(splash_pix)
         splash.show()
@@ -156,7 +187,8 @@ if __name__ == "__main__":
     engine = QQmlApplicationEngine()
     engine.quit.connect(app.quit)
     engine.rootContext().setContextProperty("processorInterface", processorInterface)
-    engine.load(QUrl("view.qml"))
+    #engine.load(QUrl("view.qml"))
+    engine.load(":/view.qml")
 
     if engine.rootObjects():
         if splash:

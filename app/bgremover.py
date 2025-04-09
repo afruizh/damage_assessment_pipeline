@@ -15,8 +15,8 @@ import onnxruntime as ort
 import cv2 as cv
 import numpy as np
 
-#MODEL_PATH = "./models"
-MODEL_PATH = r"\\CATALOGUE.CGIARAD.ORG\AcceleratedBreedingInitiative\1.Data\16. Spidermites_AdrianK\models\onnx"
+MODEL_PATH = "./models"
+#MODEL_PATH = r"\\CATALOGUE.CGIARAD.ORG\AcceleratedBreedingInitiative\1.Data\16. Spidermites_AdrianK\models\onnx"
 
 
 def rescale_t(image, target_size=320):
@@ -283,9 +283,9 @@ class BackgroundRemover():
 
     def initialize(self, ):
 
-        if self.ort_sess is not None:
+        if self.ort_sess is None:
             # Load model
-            model_filepath = os.path.join(MODEL_PATH, "onnx", "custom_u2net.onnx")
+            model_filepath = os.path.join(MODEL_PATH, "custom_u2net.onnx")
             providers = [
                 ("CUDAExecutionProvider", {
                     "device_id": 0,
@@ -293,7 +293,7 @@ class BackgroundRemover():
             ]
             self.ort_sess = ort.InferenceSession(model_filepath, providers=providers)
 
-    def inference(self, np_image):
+    def inference(self, np_image, threshold=127):
 
         self.initialize()
 
@@ -318,19 +318,20 @@ class BackgroundRemover():
         mask = mask.astype(np.uint8)
         mask0 = mask
 
-        ret,binary_mask = cv.threshold(mask0,20,255,cv.THRESH_BINARY)
+        ret,binary_mask = cv.threshold(mask0,threshold,255,cv.THRESH_BINARY)
         binary_mask = np.uint8(binary_mask)
+        segmented = cv.bitwise_and(np_image,np_image, mask = binary_mask)
             
-        return mask, binary_mask
+        return mask, binary_mask, segmented
 
-    def inference_file(self, filename, model_name):
+    def inference_file(self, filename):
 
         np_image = cv.imread(filename)
         np_image = cv.cvtColor(np_image, cv.COLOR_BGR2RGB)
 
-        final_res = self.inference(np_image)
+        mask, binary_mask, segmented = self.inference(np_image)
 
-        return final_res
+        return mask, binary_mask, segmented
 
     def batch_processing(self, folder, output_folder, format="tiff"):
 
@@ -338,14 +339,24 @@ class BackgroundRemover():
 
         def processFunction(filepath, output_files):
 
-            self.inference_file(filepath, output_files[0])
+            if os.path.exists(output_files[0]):
+                print(f"File already exists {output_files[0]}")
+            else:
+                mask, binary_mask, segmented = self.inference_file(filepath)
+                cv.imwrite(output_files[0], mask)
+                print(f"File saved {output_files[0]}")
+                cv.imwrite(output_files[1], binary_mask)
+                print(f"File saved {output_files[1]}")
+                cv.imwrite(output_files[2], cv.cvtColor(segmented, cv.COLOR_RGB2BGR))
+                print(f"File saved {output_files[2]}")
+                
 
-            #self.results.append({"filepath":filepath, "class":"class1"})
-
-
-        processor.batch_process(input_dir=folder, output_dir=folder, processing_fc=processFunction, pattern = '**/*.' + format )
-
-
+        processor.batch_process(input_dir=folder
+                                , output_dir=output_folder
+                                , processing_fc=processFunction
+                                , pattern = '**/*.' + format
+                                , output_suffixes = ["mask", "binary_mask", "segmented"]
+                                )
 
     # def remove_background(self, filepath_image):
 
