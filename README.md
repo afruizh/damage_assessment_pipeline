@@ -78,24 +78,43 @@ This project uses models and code from [**https://github.com/xuebinqin/U-2-Net**
 
 ### Deployment
 
+Create resources files, if required to bundle .qml and images inside the .exe:
+
+```
+pyside6-rcc resources.qrc -o rc_resources.py
+```
+
+
+Create specifications file:
+
 ```bash
 cd app
 pyside6-deploy gui.py --init
 
 ```
- Use 
+
+Modify this lines in `pysidedeploy.spec` file:
+
+```bash
 title = GrassDAP
-icon = D:\local_mydev_ciat\damage_assessment_pipeline\app\icon.ico
+icon = .\icon.ico
 
 modules = Core,Gui,Network,Qml,QmlModels,QmlMeta,OpenGL,QmlWorkerScript,QuickControls2,Quick,QuickTemplates2,Widgets,WebEngine,WebEngineCore,WebEngineQuick,WebEngineWidgets
-extra_args = --quiet --noinclude-qt-translations --include-qt-plugins=qml,resources,translations
+extra_args = --quiet --include-qt-plugins=qml --disable-console
 mode = standalone
 mode = release
 arch = "x86_64"
+```
 
+Different compilation options:
 
+```
 extra_args = --quiet --include-qt-plugins=qml
-extra_args = --quiet --include-qt-plugins=qml --disable-console
+```
+
+```
+extra_args = --quiet --noinclude-qt-translations --include-qt-plugins=qml,resources,translations
+```
 
 
 ```bash
@@ -104,19 +123,19 @@ pyside6-deploy -c pysidedeploy.spec
 pyside6-deploy --extra-modules Core,Gui,Network,Qml,QmlModels,QmlMeta,OpenGL,QmlWorkerScript,QuickControls2,Quick,QuickTemplates2,Widgets,WebEngine,WebEngineCore,WebEngineQuick,WebEngineWidgets -c pysidedeploy.spec
 
 ```
-dumpbin
-vcvarshall
 
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build
+Make sure `dumpbin` and `vcvarshall` are accessible, for example in `C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build` ryn
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" "amd64"
+```
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
+```
 
-add to path 
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\bin\Hostx64\x64
+or add to path the binaries, using this path:
+`C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\bin\Hostx64\x64`
 
-python 3.11 must be used for compatibility with onnxruntime
 
-Create environment to deploy:
+
+Create conda environment to deploy (python 3.11 must be used for compatibility with onnxruntime):
 
 ```bash
 conda create -n qt python=3.11
@@ -126,8 +145,16 @@ pip install opencv-python
 pip install openpyxl
 pip install onnxruntime-gpu
 ```
+additional dlls if necessary (bundle with torch in some cases):
 
-pyside6-rcc resources.qrc -o rc_resources.py
+```
+cudnn64_9.dll
+cusparse64_12.dll
+cublas64_12.dll
+cublasLt64_12.dll
+cudart64_12.dll
+```
+
 
 ## License
 This project is licensed under the Apache-2.0 license.

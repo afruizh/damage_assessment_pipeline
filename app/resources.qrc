@@ -1,5 +1,5 @@
 <!DOCTYPE RCC><RCC version="1.0">
-<qresource prefix="/">
+<qresource>
     <file>gd_logo_small.png</file>
     <file>gd_logo.png</file>
     <file>icon.ico</file>

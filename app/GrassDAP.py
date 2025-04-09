@@ -1,6 +1,7 @@
 import sys
 import os
 import subprocess
+import webbrowser
 
 #from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import QApplication
@@ -27,7 +28,13 @@ from PySide6.QtWebEngineQuick import QtWebEngineQuick
 from bgremover import DamageClassifier
 from bgremover import BackgroundRemover
 
-import rc_resources
+USE_RESOURCES = True  # Set to True to use resources.qrc
+
+RES_PREFIX = ""
+
+if USE_RESOURCES:
+    import rc_resources
+    RES_PREFIX = ":/"
 
 
 class Worker(QThread):
@@ -165,15 +172,21 @@ class ProcessorInterface(QObject):
         else:
             print(f"Output folder not found or is not a directory: {output_folder}")
 
+    @Slot(str)
+    def open_url(self, url):
+        """Open website in default web browser"""
+        webbrowser.open(url)
+    
+
 
 if __name__ == "__main__":
 
     #app = QGuiApplication(sys.argv)
     app = QApplication(sys.argv)
-    app.setWindowIcon(QIcon(":/icon.png"))
+    app.setWindowIcon(QIcon(RES_PREFIX + "icon.png"))
 
     # Create the splash screen.  Use a QPixmap for image loading.
-    splash_pix = QPixmap(":/gd_logo_small.png")
+    splash_pix = QPixmap(RES_PREFIX + "gd_logo_small.png")
     if not splash_pix.isNull(): # check if the image loaded correctly.
         splash = QSplashScreen(splash_pix)
         splash.show()
@@ -188,7 +201,8 @@ if __name__ == "__main__":
     engine.quit.connect(app.quit)
     engine.rootContext().setContextProperty("processorInterface", processorInterface)
     #engine.load(QUrl("view.qml"))
-    engine.load(":/view.qml")
+    engine.load(RES_PREFIX + "view.qml")
+
 
     if engine.rootObjects():
         if splash:
@@ -196,7 +210,5 @@ if __name__ == "__main__":
     else:
         print("QML load failed")
         sys.exit(1)
-
-    
 
     sys.exit(app.exec())

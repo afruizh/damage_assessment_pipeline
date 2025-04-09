@@ -98,7 +98,7 @@ ApplicationWindow {
                         spacing: 1
 
                         Text {
-                            text: '<div style="text-align: left;"><h1>Phenotyping pipeline</h1><p>Modular phenotyping pipeline.</p><h3>Authors</h3><p>Tropical Forages Program, CIAT.</p><h3>Acknowledgments</h3><p>This work was partially funded by Accelerated Breeding Initiative of CGIAR.</p><p></p></div>'
+                            text: '<div style="text-align: left;"><h1>GrassDAP</h1><p>Modular Damage Assessment Pipeline using AI models.</p><h3>Authors</h3><p>Tropical Forages Program, CIAT.</p><h3>Acknowledgments</h3><p>This work was partially funded by Accelerated Breeding Initiative of CGIAR.</p><p></p></div>'
                             //verticalAlignment: Text.AlignVCenter
                         }
                         
@@ -189,7 +189,7 @@ ApplicationWindow {
 
                         Text {
                             Layout.alignment: Qt.AlignVCenter
-                            text: '<div style="text-align: left;"><h1>GrassDAP</h1><p>Modular Damage Assessment Pipeline using AI models.<p></p></div>'
+                            text: '<div style="text-align: left;"><h1>GrassDAP</h1><p>Modular Damage Assessment Pipeline using AI models.</p></div>'
                             anchors.verticalCenter: parent.verticalCenter
                         }
                         

@@ -20,6 +20,14 @@ Rectangle {
         anchors.fill: parent
         anchors.margins: 20
 
+        Button {
+            Layout.fillWidth: true
+            text: "Open Website"
+            onClicked: {
+                processorInterface.open_url("https://huggingface.co/spaces/anfruizhu/phenotyping_pipeline")
+            }
+        }
+
         WebEngineView {
             id: webView
             url: "https://huggingface.co/spaces/anfruizhu/phenotyping_pipeline"
