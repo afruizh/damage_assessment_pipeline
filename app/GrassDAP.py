@@ -192,6 +192,7 @@ if __name__ == "__main__":
         splash.show()
         #QTimer.singleShot(3000)
         app.processEvents()  # Ensure the splash screen is displayed.
+        
     else:
         splash = None # if image didn't load, don't show a splash
 
