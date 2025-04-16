@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 import subprocess
 import webbrowser
 
@@ -192,6 +193,7 @@ if __name__ == "__main__":
         splash.show()
         #QTimer.singleShot(3000)
         app.processEvents()  # Ensure the splash screen is displayed.
+        time.sleep(2)
         
     else:
         splash = None # if image didn't load, don't show a splash
