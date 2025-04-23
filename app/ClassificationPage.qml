@@ -104,10 +104,20 @@ Rectangle {
             Button {
                 Layout.fillWidth: true
                 text: "Process"
+                // onClicked: {
+                //     console.log("Processing with folder: " + folderPath.text + ", model: " + modelDropdown.currentText + ", output: " + outputFilePath.text)
+                //     loadingIndicator.visible = true  // Show loading indicator
+                //     processorInterface.process(folderPath.text, modelDropdown.currentText, outputFilePath.text)
+                // }
                 onClicked: {
-                    console.log("Processing with folder: " + folderPath.text + ", model: " + modelDropdown.currentText + ", output: " + outputFilePath.text)
+                    let params = {
+                        "task": "batch_damage_classification"
+                        , "input_folder": folderPath.text.toString().replace("file:///", "").replace("file://", "//")
+                        , "model": modelDropdown.currentText
+                        , "output_file": outputFilePath.text.toString().replace("file:///", "").replace("file://", "//")
+                    };
                     loadingIndicator.visible = true  // Show loading indicator
-                    processorInterface.process(folderPath.text, modelDropdown.currentText, outputFilePath.text)
+                    processorInterface.process(params)
                 }
             }
         }
@@ -149,9 +159,15 @@ Rectangle {
 
     Connections {
         target: processorInterface
-        function onFinished() {
-            loadingIndicator.visible = false  // Show loading indicator
-            infoDialog.open()
+        // function onFinished() {
+        //     loadingIndicator.visible = false  // Show loading indicator
+        //     infoDialog.open()
+        // }
+        function onFinished(results) {
+            if (results.task === "batch_damage_classification") {
+                loadingIndicator.visible = false  // Show loading indicator
+                infoDialog.open()
+            }
         }
     }
 

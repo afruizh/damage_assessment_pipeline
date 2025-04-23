@@ -16,7 +16,7 @@ import cv2 as cv
 import numpy as np
 
 MODEL_PATH = "./models"
-#MODEL_PATH = r"\\CATALOGUE.CGIARAD.ORG\AcceleratedBreedingInitiative\1.Data\16. Spidermites_AdrianK\models\onnx"
+MODEL_PATH = r"\\CATALOGUE.CGIARAD.ORG\AcceleratedBreedingInitiative\1.Data\16. Spidermites_AdrianK\models\onnx"
 
 
 def rescale_t(image, target_size=320):
@@ -333,7 +333,9 @@ class BackgroundRemover():
 
         return mask, binary_mask, segmented
 
-    def batch_processing(self, folder, output_folder, format="tiff"):
+    def batch_processing(self, folder, output_folder, format="tiff"
+                        , progress_callback=None
+                        , interruption_check=None):
 
         processor = BatchProcessor()
 
@@ -356,6 +358,8 @@ class BackgroundRemover():
                                 , processing_fc=processFunction
                                 , pattern = '**/*.' + format
                                 , output_suffixes = ["mask", "binary_mask", "segmented"]
+                                , progress_callback=progress_callback
+                                , interruption_check=interruption_check
                                 )
 
     # def remove_background(self, filepath_image):
@@ -516,7 +520,9 @@ class DamageClassifier():
         return final_res
     
     
-    def batch_processing(self, folder, model_name, output_filename, format="tiff"):
+    def batch_processing(self, folder, model_name, output_filename, format="tiff"
+                        , progress_callback=None
+                        , interruption_check=None):
 
         processor = BatchProcessor()
 
@@ -527,7 +533,13 @@ class DamageClassifier():
             #self.results.append({"filepath":filepath, "class":"class1"})
 
 
-        processor.batch_process(input_dir=folder, output_dir=folder, processing_fc=processFunction, pattern = '**/*.' + format )
+        processor.batch_process(input_dir=folder
+                                , output_dir=folder
+                                , processing_fc=processFunction
+                                , pattern = '**/*.' + format
+                                , progress_callback=progress_callback
+                                , interruption_check=interruption_check
+                                )
 
         # Convert the list of dictionaries to a pandas DataFrame
         df = pd.DataFrame(self.results)
@@ -577,12 +589,22 @@ class BatchProcessor():
     def __init__(self):
         return
     
-    def batch_process(self, input_dir, output_dir, output_suffixes = ["output"], format="jpg", pattern='**/*.tiff', processing_fc=None, output_format = None):
+    def batch_process(self, input_dir, output_dir
+                      , output_suffixes = ["output"]
+                      , format="jpg"
+                      , pattern='**/*.tiff'
+                      , processing_fc=None
+                      , output_format = None
+                      , progress_callback=None
+                      , interruption_check=None
+                      ):
 
         if processing_fc == None:
             print("Processing function is None")
             return
         else:
+
+            logs = []
 
             if output_format == None:
                 output_format = format
@@ -590,8 +612,24 @@ class BatchProcessor():
             # Get list of files in folder and subfolders
             pattern = '**/*.'  + format
             files = glob.glob(pattern, root_dir=input_dir, recursive=True)
+            total_files = len(files)
+            processed_count = 0
+
+            # Emit initial progress if needed
+            if progress_callback:
+                progress_callback({"processed_count":processed_count
+                                    , "total_files":total_files
+                                    , "status":"Initializing..."
+                                    , "logs":logs
+                                    , "percent": processed_count/total_files*100
+                                    })
 
             for file in files:
+
+                # Check for interruption request before processing each file
+                if interruption_check and interruption_check():
+                    print("Interruption requested, stopping batch process.")
+                    break # Exit the loop
 
                 filepath = os.path.join(input_dir, file)
                 basename = os.path.basename(filepath)
@@ -608,8 +646,23 @@ class BatchProcessor():
                     if not os.path.exists(output_sub_dir):  # Create subfolders if necessary
                         pathlib.Path(output_sub_dir).mkdir(parents=True, exist_ok=True)
 
+                    logs.append(f"Processing {file}")
+                    
                     processing_fc(filepath, output_filepaths) # Process and save file
 
                     print(file)
                     print(output_filepaths[0])
                     print("****")
+                    logs.append(f"Saved {output_filepaths[0]}")
+
+                processed_count += 1
+                # Emit progress after attempting to process (or skip) each file
+                if progress_callback:
+                    progress_callback({"processed_count":processed_count
+                                       , "total_files":total_files
+                                       , "status":"Processing"
+                                       , "logs": logs
+                                       , "percent": processed_count/total_files*100
+                                       })
+
+            print(f"Batch process loop finished. Processed {processed_count}/{total_files} files.")

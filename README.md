@@ -96,7 +96,7 @@ pyside6-deploy gui.py --init
 Modify this lines in `pysidedeploy.spec` file:
 
 ```bash
-title = GrassDAP
+title = GrassDamageAI
 icon = .\icon.ico
 
 modules = Core,Gui,Network,Qml,QmlModels,QmlMeta,OpenGL,QmlWorkerScript,QuickControls2,Quick,QuickTemplates2,Widgets,WebEngine,WebEngineCore,WebEngineQuick,WebEngineWidgets

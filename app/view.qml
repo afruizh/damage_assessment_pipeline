@@ -10,7 +10,7 @@ ApplicationWindow {
     visible: true
     width: 850
     height: 630
-    title: qsTr("GrassDAP - Damage Assessment Pipeline")
+    title: qsTr("GrassDamageAI - Damage Assessment Pipeline")
     minimumWidth: 630
 
     // Rectangle {
@@ -74,76 +74,79 @@ ApplicationWindow {
         flags: Qt.Dialog | Qt.WindowTitleHint | Qt.WindowCloseButtonHint
 
         ColumnLayout {
-                        anchors.fill:parent
-                        spacing: 1
+            anchors.fill:parent
+            spacing: 1
 
-        Rectangle {
-            Layout.margins: 20
-            Layout.preferredHeight: 150
-            //Layout.preferredWidth: parent.width
-            Layout.fillWidth: true
-            color: "transparent"
+            Rectangle {
+                Layout.margins: 20
+                Layout.preferredHeight: 150
+                //Layout.preferredWidth: parent.width
+                Layout.fillWidth: true
+                color: "transparent"
 
-            RowLayout {
-                spacing: 20
-                anchors.fill: parent
-
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    color: "transparent"
-
-                    ColumnLayout {
-                        anchors.fill:parent
-                        spacing: 1
-
-                        Text {
-                            text: '<div style="text-align: left;"><h1>GrassDAP</h1><p>Modular Damage Assessment Pipeline using AI models.</p><h3>Authors</h3><p>Tropical Forages Program, CIAT.</p><h3>Acknowledgments</h3><p>This work was partially funded by Accelerated Breeding Initiative of CGIAR.</p><p></p></div>'
-                            //verticalAlignment: Text.AlignVCenter
-                        }
-                        
-                    }
-                }
-
-                Rectangle {
-                    Layout.preferredWidth: 200
-                    Layout.fillHeight: true
-                    color: "transparent"
+                RowLayout {
+                    spacing: 20
+                    anchors.fill: parent
 
                     Rectangle {
-                        id: logoRectangle2
-                        color: "white"
-                        radius: 10
-                        anchors.fill:parent
-                        anchors.margins: 10
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        color: "transparent"
 
-                        RowLayout {
+                        ColumnLayout {
                             anchors.fill:parent
-                            anchors.centerIn: parent
-                            Image {
-                                Layout.fillWidth:true
-                                Layout.fillHeight:true
-                                //anchors.fill: parent
-                                source: "logo.png"  // Replace with your logo file
-                                //anchors.centerIn: parent
-                                fillMode: Image.PreserveAspectFit
-                                mipmap: true
+                            spacing: 1
+
+                            Text {
+                                text: '<div style="text-align: left;"><h1>GrassDamageAI</h1><p>Modular Damage Assessment Pipeline using AI models.</p><h3>Authors</h3><p>Tropical Forages Program, CIAT.</p><h3>Acknowledgments</h3><p>This work was partially funded by Accelerated Breeding Initiative of CGIAR.</p><p></p></div>'
+                                //verticalAlignment: Text.AlignVCenter
                             }
+                            
                         }
                     }
-                    MultiEffect {
-                        source: logoRectangle2
-                        anchors.fill: logoRectangle2
-                        shadowBlur: 1.0
-                        shadowEnabled: true
-                        shadowColor: "gray"
-                        shadowVerticalOffset: 0
-                        shadowHorizontalOffset: 0
+
+                    Rectangle {
+                        Layout.preferredWidth: 200
+                        Layout.fillHeight: true
+                        color: "transparent"
+
+                        Rectangle {
+                            id: logoRectangle2
+                            color: "white"
+                            radius: 10
+                            anchors.fill:parent
+                            anchors.margins: 10
+
+                            RowLayout {
+                                anchors.fill:parent
+                                anchors.centerIn: parent
+                                Image {
+                                    Layout.fillWidth:true
+                                    Layout.fillHeight:true
+                                    //anchors.fill: parent
+                                    source: "logo.png"  // Replace with your logo file
+                                    //anchors.centerIn: parent
+                                    fillMode: Image.PreserveAspectFit
+                                    mipmap: true
+                                }
+                            }
+                        }
+                        MultiEffect {
+                            source: logoRectangle2
+                            anchors.fill: logoRectangle2
+                            shadowBlur: 1.0
+                            shadowEnabled: true
+                            shadowColor: "gray"
+                            shadowVerticalOffset: 0
+                            shadowHorizontalOffset: 0
+                        }
                     }
                 }
+        
             }
-    
-        }
+            
+            
+        
         }
 
     }
@@ -189,7 +192,7 @@ ApplicationWindow {
 
                         Text {
                             Layout.alignment: Qt.AlignVCenter
-                            text: '<div style="text-align: left;"><h1>GrassDAP</h1><p>Modular Damage Assessment Pipeline using AI models.</p></div>'
+                            text: '<div style="text-align: left;"><h1>GrassDamageAI</h1><p>Modular Damage Assessment Pipeline using AI models.</p></div>'
                             anchors.verticalCenter: parent.verticalCenter
                         }
                         
@@ -367,6 +370,30 @@ ApplicationWindow {
                 //     }
                 // }
             }
+
+            ProcessProgress {
+                id: processProgress
+                Layout.fillWidth: true
+                //Layout.fillHeight: true
+                Layout.preferredHeight: 200
+                statusText: "Waiting..."
+                total: 0
+                completed: 0
+                percent: 0
+                timeElapsed: "0s"
+                logs: [] // Placeholder for logs, can be updated dynamically
+            }
+
+            Button {
+                id: cancelButton
+                text: "Cancel"
+                Layout.alignment: Qt.AlignHCenter
+                Layout.fillWidth: true
+                onClicked: {
+                    processorInterface.cancelProcessing()
+                }
+            }
+            
         }
 
 

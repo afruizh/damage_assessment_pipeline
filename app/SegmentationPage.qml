@@ -88,10 +88,26 @@ Rectangle {
             Button {
                 Layout.fillWidth: true
                 text: "Process"
+                // onClicked: {
+                //     console.log("Processing with folder: " + folderPath.text + ", output: " + outputFolderPath.text)
+                //     loadingIndicator.visible = true  // Show loading indicator
+                //     processorInterface.process_seg(folderPath.text, outputFolderPath.text)
+                // }
+                // onClicked: {
+                //     console.log("Processing with folder: " + folderPath.text + ", output: " + outputFolderPath.text)
+                //     progressBar.value = 0 // Reset progress bar
+                //     progressLabel.text = "" // Reset label
+                //     loadingIndicator.visible = true  // Show loading indicator
+                //     processorInterface.process(folderPath.text, outputFolderPath.text)
+                // }
                 onClicked: {
-                    console.log("Processing with folder: " + folderPath.text + ", output: " + outputFolderPath.text)
+                    let params = {
+                        "task": "batch_segmentation"
+                        , "input_folder": folderPath.text.toString().replace("file:///", "").replace("file://", "//")
+                        , "output_folder": outputFolderPath.text.toString().replace("file:///", "").replace("file://", "//")
+                    };
                     loadingIndicator.visible = true  // Show loading indicator
-                    processorInterface.process_seg(folderPath.text, outputFolderPath.text)
+                    processorInterface.process(params)
                 }
             }
         }
@@ -133,9 +149,15 @@ Rectangle {
 
     Connections {
         target: processorInterface
-        function onFinishedSeg() {
-            loadingIndicator.visible = false  // Show loading indicator
-            infoDialog.open()
+        // function onFinishedSeg() {
+        //     loadingIndicator.visible = false  // Show loading indicator
+        //     infoDialog.open()
+        // }
+        function onFinished(results) {
+            if (results.task === "batch_segmentation") {
+                loadingIndicator.visible = false  // Show loading indicator
+                infoDialog.open()
+            }
         }
     }
 
