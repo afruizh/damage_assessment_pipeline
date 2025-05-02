@@ -15,11 +15,13 @@ import onnxruntime as ort
 import cv2 as cv
 import numpy as np
 
+from skimage import transform
+
 MODEL_PATH = "./models"
 MODEL_PATH = r"\\CATALOGUE.CGIARAD.ORG\AcceleratedBreedingInitiative\1.Data\16. Spidermites_AdrianK\models\onnx"
 
 
-def rescale_t(image, target_size=320):
+def rescale_t_classification(image, target_size=320):
     """
     Rescale image to have its shorter side equal to target_size while maintaining aspect ratio.
     """
@@ -30,8 +32,123 @@ def rescale_t(image, target_size=320):
     else:
         new_h = target_size
         new_w = int(target_size * w / h)
-    resized = cv.resize(image, (new_w, new_h))
+    resized = cv.resize(image, (new_w, new_h), interpolation=cv.INTER_AREA)
     return resized
+
+def rescale_t(image, target_size=320):
+    """
+    Rescale image to have its shorter side equal to target_size while maintaining aspect ratio.
+    """
+    h, w = image.shape[:2]
+    if h > w:
+        new_h, new_w = target_size*h/w,target_size
+        #new_w = target_size
+        #new_h = int(target_size * h / w)
+    else:
+        #new_h = target_size
+        #new_w = int(target_size * w / h)
+        new_h, new_w = target_size,target_size*w/h
+
+    new_h, new_w = int(new_h), int(new_w)
+
+    print(new_w)
+    print(new_h)
+
+    # resized = cv.resize(image, (target_size, target_size))
+    # resized = resized / 255.0
+
+    resized = transform.resize(image,(target_size,target_size),mode='constant')
+
+    return resized
+
+# def to_tensor_lab(image, flag=0):
+#     """
+#     Process an image and its corresponding label like the original ToTensorLab,
+#     but without converting to torch.Tensor.
+    
+#     Parameters:
+#       imidx (any): an index/identifier.
+#       image (np.ndarray): input image as a numpy array (assumed to be in RGB).
+#       label (np.ndarray): corresponding label map.
+#       flag (int): determines which processing branch to follow:
+#                   2: use both RGB and LAB channels (6 channels),
+#                   1: use LAB only,
+#                   0: use RGB only.
+    
+#     Returns:
+#       dict: a dictionary with keys 'imidx', 'image', and 'label', where
+#             - image is transposed to shape (C, H, W),
+#             - label is similarly transposed if it has a channel dimension.
+#     """
+    
+#     if flag == 2:
+#         # With RGB and LAB channels (6 channels)
+#         H, W = image.shape[:2]
+#         tmpImg = np.zeros((H, W, 6), dtype=np.float32)
+        
+#         # Ensure we have a 3-channel image: if single channel, replicate it.
+#         if image.ndim == 2 or image.shape[2] == 1:
+#             tmpImgt = np.repeat(image, 3, axis=2) if image.ndim == 3 else cv.cvtColor(image, cv.COLOR_GRAY2RGB)
+#         else:
+#             tmpImgt = image.copy()
+        
+#         # Convert the RGB image to LAB (scikit-image expects float images in [0,1])
+#         # (Assumes image is in RGB; if using OpenCV, convert BGR to RGB before calling this.)
+#         tmpImgt = tmpImgt.astype(np.float32) / 255.0
+#         tmpImgtl = color.rgb2lab(tmpImgt)
+        
+#         # Normalize each channel of the RGB part to [0, 1]
+#         for i in range(3):
+#             ch = tmpImgt[:, :, i]
+#             tmpImg[:, :, i] = (ch - np.min(ch)) / (np.max(ch) - np.min(ch) + 1e-8)
+#         # Normalize each channel of the LAB part to [0, 1]
+#         for i in range(3):
+#             ch = tmpImgtl[:, :, i]
+#             tmpImg[:, :, i+3] = (ch - np.min(ch)) / (np.max(ch) - np.min(ch) + 1e-8)
+        
+#         # Then standardize each channel (subtract mean and divide by std)
+#         for i in range(6):
+#             ch = tmpImg[:, :, i]
+#             tmpImg[:, :, i] = (ch - np.mean(ch)) / (np.std(ch) + 1e-8)
+    
+#     elif flag == 1:
+#         # With LAB color only (3 channels)
+#         # Ensure 3 channels in input image:
+#         if image.ndim == 2 or image.shape[2] == 1:
+#             tmpImg = np.repeat(image, 3, axis=2) if image.ndim == 3 else cv.cvtColor(image, cv.COLOR_GRAY2RGB)
+#         else:
+#             tmpImg = image.copy()
+#         tmpImg = tmpImg.astype(np.float32) / 255.0
+#         tmpImg = color.rgb2lab(tmpImg)
+        
+#         # Normalize and standardize each channel independently
+#         for i in range(3):
+#             ch = tmpImg[:, :, i]
+#             ch_norm = (ch - np.min(ch)) / (np.max(ch) - np.min(ch) + 1e-8)
+#             tmpImg[:, :, i] = (ch_norm - np.mean(ch_norm)) / (np.std(ch_norm) + 1e-8)
+    
+#     else:
+        
+#         # With RGB color only (flag == 0)
+#         image_norm = image.astype(np.float32) / 255.0
+#         # Create a 3-channel image if not already 3-channel.
+#         if image.ndim == 2 or image.shape[2] == 1:
+#             tmpImg = np.repeat(image_norm, 3, axis=2) if image.ndim == 3 else cv.cvtColor(image_norm, cv.COLOR_GRAY2RGB)
+#         else:
+#             tmpImg = image_norm.copy()
+        
+#         # Normalize using fixed mean and std (typical for many pretrained networks)
+#         # Note: These constants assume the image is in RGB.
+#         tmpImg[:, :, 0] = (tmpImg[:, :, 0] - 0.485) / 0.229
+#         tmpImg[:, :, 1] = (tmpImg[:, :, 1] - 0.456) / 0.224
+#         tmpImg[:, :, 2] = (tmpImg[:, :, 2] - 0.406) / 0.225
+
+    
+#     # Transpose image from H x W x C to C x H x W (like PyTorch expects)
+#     tmpImg = tmpImg.transpose((2, 0, 1))
+
+#     #return {'imidx': imidx, 'image': tmpImg, 'label': tmpLbl}
+#     return tmpImg
 
 def to_tensor_lab(image, flag=0):
     """
@@ -53,71 +170,25 @@ def to_tensor_lab(image, flag=0):
             - label is similarly transposed if it has a channel dimension.
     """
     
-    if flag == 2:
-        # With RGB and LAB channels (6 channels)
-        H, W = image.shape[:2]
-        tmpImg = np.zeros((H, W, 6), dtype=np.float32)
-        
-        # Ensure we have a 3-channel image: if single channel, replicate it.
-        if image.ndim == 2 or image.shape[2] == 1:
-            tmpImgt = np.repeat(image, 3, axis=2) if image.ndim == 3 else cv.cvtColor(image, cv.COLOR_GRAY2RGB)
-        else:
-            tmpImgt = image.copy()
-        
-        # Convert the RGB image to LAB (scikit-image expects float images in [0,1])
-        # (Assumes image is in RGB; if using OpenCV, convert BGR to RGB before calling this.)
-        tmpImgt = tmpImgt.astype(np.float32) / 255.0
-        tmpImgtl = color.rgb2lab(tmpImgt)
-        
-        # Normalize each channel of the RGB part to [0, 1]
-        for i in range(3):
-            ch = tmpImgt[:, :, i]
-            tmpImg[:, :, i] = (ch - np.min(ch)) / (np.max(ch) - np.min(ch) + 1e-8)
-        # Normalize each channel of the LAB part to [0, 1]
-        for i in range(3):
-            ch = tmpImgtl[:, :, i]
-            tmpImg[:, :, i+3] = (ch - np.min(ch)) / (np.max(ch) - np.min(ch) + 1e-8)
-        
-        # Then standardize each channel (subtract mean and divide by std)
-        for i in range(6):
-            ch = tmpImg[:, :, i]
-            tmpImg[:, :, i] = (ch - np.mean(ch)) / (np.std(ch) + 1e-8)
-    
-    elif flag == 1:
-        # With LAB color only (3 channels)
-        # Ensure 3 channels in input image:
-        if image.ndim == 2 or image.shape[2] == 1:
-            tmpImg = np.repeat(image, 3, axis=2) if image.ndim == 3 else cv.cvtColor(image, cv.COLOR_GRAY2RGB)
-        else:
-            tmpImg = image.copy()
-        tmpImg = tmpImg.astype(np.float32) / 255.0
-        tmpImg = color.rgb2lab(tmpImg)
-        
-        # Normalize and standardize each channel independently
-        for i in range(3):
-            ch = tmpImg[:, :, i]
-            ch_norm = (ch - np.min(ch)) / (np.max(ch) - np.min(ch) + 1e-8)
-            tmpImg[:, :, i] = (ch_norm - np.mean(ch_norm)) / (np.std(ch_norm) + 1e-8)
-    
+    tmpImg = np.zeros((image.shape[0],image.shape[1],3))
+    print("****")
+    print(tmpImg.shape)
+    print(image.shape)
+    print("****")
+    image = image/np.max(image)
+    if image.shape[2]==1:
+        tmpImg[:,:,0] = (image[:,:,0]-0.485)/0.229
+        tmpImg[:,:,1] = (image[:,:,0]-0.485)/0.229
+        tmpImg[:,:,2] = (image[:,:,0]-0.485)/0.229
     else:
-        # With RGB color only (flag == 0)
-        image_norm = image.astype(np.float32) / 255.0
-        # Create a 3-channel image if not already 3-channel.
-        if image.ndim == 2 or image.shape[2] == 1:
-            tmpImg = np.repeat(image_norm, 3, axis=2) if image.ndim == 3 else cv.cvtColor(image_norm, cv.COLOR_GRAY2RGB)
-        else:
-            tmpImg = image_norm.copy()
-        
-        # Normalize using fixed mean and std (typical for many pretrained networks)
-        # Note: These constants assume the image is in RGB.
-        tmpImg[:, :, 0] = (tmpImg[:, :, 0] - 0.485) / 0.229
-        tmpImg[:, :, 1] = (tmpImg[:, :, 1] - 0.456) / 0.224
-        tmpImg[:, :, 2] = (tmpImg[:, :, 2] - 0.406) / 0.225
+        tmpImg[:,:,0] = (image[:,:,0]-0.485)/0.229
+        tmpImg[:,:,1] = (image[:,:,1]-0.456)/0.224
+        tmpImg[:,:,2] = (image[:,:,2]-0.406)/0.225
 
     
     # Transpose image from H x W x C to C x H x W (like PyTorch expects)
     tmpImg = tmpImg.transpose((2, 0, 1))
-
+    print(tmpImg.shape)
     #return {'imidx': imidx, 'image': tmpImg, 'label': tmpLbl}
     return tmpImg
 
@@ -293,21 +364,42 @@ class BackgroundRemover():
             ]
             self.ort_sess = ort.InferenceSession(model_filepath, providers=providers)
 
-    def inference(self, np_image, threshold=127):
+    def inference(self, np_image, threshold=80):
 
         self.initialize()
 
         img_prec = np_image
+
+        print("**OMTO")
+        print(img_prec.dtype)
+        print(img_prec.shape)
+        print(np.min(img_prec))
+        print(np.max(img_prec))
+        print("**OMTO")
+
         w = np_image.shape[1]
         h = np_image.shape[0]
         img_prec = rescale_t(img_prec, 320)
+        print("**rescale")
+        print(img_prec.dtype)
+        print(img_prec.shape)
+        print(np.min(img_prec))
+        print(np.max(img_prec))
+        print("**rescale")
         img_prec = to_tensor_lab(img_prec, 0)
-
+        img_prec = img_prec.astype(np.float32)
+        print(img_prec.dtype)
+        print(img_prec.shape)
+        print(np.min(img_prec))
+        print(np.max(img_prec))
         img_prec = np.expand_dims(img_prec, axis=0)
 
         #outputs = ort_sess.run(None, {'input': [img.numpy()]})
 
         outputs = self.ort_sess.run(None, {'input': img_prec})
+
+        print(len(outputs))
+        print(outputs[0].shape)
 
         pred = outputs[0][:,0,:,:]
         pred = normPRED(pred)
@@ -332,6 +424,24 @@ class BackgroundRemover():
         mask, binary_mask, segmented = self.inference(np_image)
 
         return mask, binary_mask, segmented
+    
+    def inference_file_save(self, filename, output_folder
+                            , progress_callback=None
+                        , interruption_check=None):
+
+        mask, binary_mask, segmented = self.inference_file(filename)
+
+        # Save the images
+        basename = os.path.basename(filename)
+        print(output_folder)
+        print(basename)
+        output_mask_path = os.path.join(output_folder, basename.replace(".jpg", "_mask.jpg"))
+        output_binary_mask_path = os.path.join(output_folder, basename.replace(".jpg", "_binary_mask.jpg"))
+        output_segmented_path = os.path.join(output_folder, basename.replace(".jpg", "_segmented.jpg"))
+
+        cv.imwrite(output_mask_path, mask)
+        cv.imwrite(output_binary_mask_path, binary_mask)
+        cv.imwrite(output_segmented_path, cv.cvtColor(segmented, cv.COLOR_RGB2BGR))
 
     def batch_processing(self, folder, output_folder, format="tiff"
                         , progress_callback=None
@@ -460,6 +570,11 @@ class DamageClassifier():
                 })
             ]
 
+            print("************** MODEL")
+
+            print(model_name)
+            print(model_filepath)
+
             self.ort_sess = ort.InferenceSession(model_filepath, providers=providers)
 
             # self.ort_sess = ort.InferenceSession(model_filepath
@@ -474,22 +589,74 @@ class DamageClassifier():
         self.initialize(model_name)
 
         img_prec = np_image
-        img_prec = rescale_t(img_prec, 512)
+        print("**************")
+        print(img_prec.dtype)
+        print(img_prec.shape)
+        print(np.min(img_prec))
+        print(np.max(img_prec))
+        print("**************")
+        img_prec = img_prec.astype(np.float32)/255.0
+        print("************** TO FLOAT")
+        print(img_prec.dtype)
+        print(img_prec.shape)
+        print(np.min(img_prec))
+        print(np.max(img_prec))
+        print("************** RESIZE ") 
+        img_prec = rescale_t_classification(img_prec, 512)        
+        print("**************")
+        print(img_prec.dtype)
+        print(img_prec.shape)
+        print(np.min(img_prec))
+        print(np.max(img_prec))
+        print("************** CENTER CROP")
         img_prec = center_crop(img_prec, 512)
-        img_prec = normalize(img_prec, [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        print("**************")
+        print(img_prec.dtype)
+        print(img_prec.shape)
+        print(np.min(img_prec))
+        print(np.max(img_prec))
+        print("**************")
+        #img_prec = normalize(img_prec, [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        print("************** NORMALIZE")
+        print(img_prec.dtype)
+        print(img_prec.shape)
+        print(np.min(img_prec))
+        print(np.max(img_prec))
+        print("**************")
         img_prec = img_prec.astype(np.float32)
 
+        # img_prec = cv.imread(r"D:\local_mydev\HuggingFace\phenotyping_pipeline\prec.png")
+        # img_prec = cv.cvtColor(img_prec, cv.COLOR_BGR2RGB)
+        # img_prec = img_prec.astype(np.float32)/255.0
+
+        
+
         img_prec = np.transpose(img_prec, (2,0,1))
-        img_prec = np.expand_dims(img_prec, axis=0)
+        print("**************")
+        print(img_prec.dtype)
+        print(img_prec.shape)
+        print(np.min(img_prec))
+        print(np.max(img_prec))
+        print("**************")
+        
+        save = img_prec.transpose(1,2,0)*255
+        save = cv.cvtColor(save, cv.COLOR_RGB2BGR)
+
+        cv.imwrite("prec.png", save)
+
+        #img_prec = np.expand_dims(img_prec, axis=0)
 
         #outputs = ort_sess.run(None, {'input': [img.numpy()]})
 
-        outputs = self.ort_sess.run(None, {'input': img_prec})
+        #outputs = self.ort_sess.run(None, {'input': img_prec})
+
+        outputs = self.ort_sess.run(None, {'input': [img_prec]})
 
         np_res = outputs[0][0]
+        print(np_res)
         
-        #if model_name != "Regnet":
-        np_res = softmax(np_res)
+        if model_name != "Regnet":
+            np_res = softmax(np_res)
 
         final_res = {'0-(No damage)': np_res[0]
                         ,'1-3-(Moderately damaged)': np_res[1]
@@ -499,7 +666,9 @@ class DamageClassifier():
         return final_res
 
 
-    def inference_file(self, filename, model_name):
+    def inference_file(self, filename, model_name
+                    ,progress_callback=None
+                    ,interruption_check=None):
 
         np_image = cv.imread(filename)
         np_image = cv.cvtColor(np_image, cv.COLOR_BGR2RGB)

@@ -29,7 +29,7 @@ from PySide6.QtWebEngineQuick import QtWebEngineQuick
 # from bgremover import DamageClassifier
 # from bgremover import BackgroundRemover
 
-from interface import ProcessorInterface
+from interface.interface import ProcessorInterface
 
 USE_RESOURCES = False  # Set to True to use resources.qrc
 
@@ -185,6 +185,14 @@ if __name__ == "__main__":
 
     #app = QGuiApplication(sys.argv)
     app = QApplication(sys.argv)
+
+    # --- Add Application Metadata ---
+    app.setApplicationName("GrassDamageAI")
+    app.setOrganizationName("Tropical Forages Program | CIAT") # Replace with your company
+    #app.setOrganizationDomain("") # Replace with your domain
+    app.setApplicationVersion("0.1.0")
+    # --- End Metadata ---
+
     app.setWindowIcon(QIcon(RES_PREFIX + "icon.png"))
 
     # Create the splash screen.  Use a QPixmap for image loading.

@@ -5,7 +5,7 @@ import webbrowser
 from PySide6.QtCore import QObject, Slot, Signal
 from PySide6.QtCore import QThread
 
-from processor import Processor
+from .processor import Processor
 
 class Worker(QThread):
     finished = Signal(dict)  # Signal emitted when the thread finishes processing

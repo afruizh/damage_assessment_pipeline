@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Dialogs
+import Qt.labs.settings
 
 Rectangle {
     
@@ -15,6 +16,12 @@ Rectangle {
     //     GradientStop { position: 1.0; color: "transparent" }
     // }
 
+    Settings {
+        id: appSettings
+        property string lastInputFolder: ""
+        property string lastOutputFolder: ""
+    }
+
     ColumnLayout {
         spacing: 10
         anchors.fill: parent
@@ -25,7 +32,7 @@ Rectangle {
         RowLayout {
             spacing: 5
             Label {
-                text: "Select Folder:"
+                text: "Input Folder:"
                 width: 100
                 Layout.minimumWidth: 80
             }
@@ -46,8 +53,10 @@ Rectangle {
         FolderDialog {
             id: folderDialog
             title: "Select Folder"
+            currentFolder: appSettings.lastInputFolder || ""
             onAccepted: {
                 folderPath.text = folderDialog.currentFolder.toString().replace("file:///", "").replace("file://", "//")
+                appSettings.lastInputFolder = folderDialog.currentFolder
             }
         }
 
@@ -76,8 +85,10 @@ Rectangle {
         FolderDialog {
             id: outputFolderDialog
             title: "Select Folder"
+            currentFolder: appSettings.lastOutputFolder || ""
             onAccepted: {
                 outputFolderPath.text = outputFolderDialog.currentFolder.toString().replace("file:///", "").replace("file://", "//")
+                appSettings.lastOutputFolder = outputFolderDialog.currentFolder
             }
         }
 

@@ -27,14 +27,34 @@ Item {
                 anchors.fill: parent
                 spacing: 5
 
-                TextArea {
-                    id: logArea
-                    text: logs.join("\n")
-                    readOnly: true
-                    wrapMode: TextEdit.WrapAnywhere
-                    font.family: "Monospace"
+                // Replace ScrollView with Flickable to control boundsBehavior
+                Flickable {
+                    id: flickArea
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    boundsBehavior: Flickable.StopAtBounds // Prevent bouncing
+                    contentWidth: logArea.implicitWidth // Set content width
+                    contentHeight: logArea.implicitHeight // Set content height
+                    clip: true // Ensure content stays within bounds
+
+                    TextArea {
+                        id: logArea
+                        text: logs.join("\n")
+                        readOnly: true
+                        wrapMode: TextEdit.WrapAnywhere
+                        font.family: "Monospace"
+                        // Make TextArea width match Flickable width
+                        width: flickArea.width
+                        height: 800
+                        //height: contentHeight // Let height grow with content
+                        // Let height grow with content
+                        // Layout.fillWidth and Layout.fillHeight are not used directly in Flickable content
+                    }
+
+                    // Manually add ScrollBar
+                    ScrollBar.vertical: ScrollBar {
+                        policy: ScrollBar.AlwaysOn
+                    }
                 }
 
                 RowLayout {

@@ -5,12 +5,13 @@ import QtQuick.Dialogs
 import Qt5Compat.GraphicalEffects
 import QtQuick.Effects
 
+
 ApplicationWindow {
     id: mainWindow
     visible: true
     width: 850
     height: 630
-    title: qsTr("GrassDamageAI - Damage Assessment Pipeline")
+    title: qsTr(Qt.application.name + " - Damage Assessment Pipeline v" + Qt.application.version)
     minimumWidth: 630
 
     // Rectangle {
@@ -98,7 +99,7 @@ ApplicationWindow {
                             spacing: 1
 
                             Text {
-                                text: '<div style="text-align: left;"><h1>GrassDamageAI</h1><p>Modular Damage Assessment Pipeline using AI models.</p><h3>Authors</h3><p>Tropical Forages Program, CIAT.</p><h3>Acknowledgments</h3><p>This work was partially funded by Accelerated Breeding Initiative of CGIAR.</p><p></p></div>'
+                                text: '<div style="text-align: left;"><h1>' + Qt.application.name + ' v' + Qt.application.version + '</h1><p>Modular Damage Assessment Pipeline using AI models.</p><h3>Authors</h3><p>' + Qt.application.organization + '.</p><h3>Acknowledgments</h3><p>This work was partially funded by Accelerated Breeding Initiative of CGIAR.</p><p></p></div>'
                                 //verticalAlignment: Text.AlignVCenter
                             }
                             
