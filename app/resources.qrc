@@ -9,5 +9,6 @@
     <file>ClassificationPage.qml</file>
     <file>SegmentationPage.qml</file>
     <file>WebappPage.qml</file>
+    <file>ProcessProgress.qml</file>
 </qresource>
 </RCC>

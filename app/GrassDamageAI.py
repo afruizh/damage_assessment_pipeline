@@ -31,7 +31,7 @@ from PySide6.QtWebEngineQuick import QtWebEngineQuick
 
 from interface.interface import ProcessorInterface
 
-USE_RESOURCES = False  # Set to True to use resources.qrc
+USE_RESOURCES = True  # Set to True to use resources.qrc
 
 RES_PREFIX = ""
 

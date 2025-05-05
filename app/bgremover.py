@@ -18,7 +18,7 @@ import numpy as np
 from skimage import transform
 
 MODEL_PATH = "./models"
-MODEL_PATH = r"\\CATALOGUE.CGIARAD.ORG\AcceleratedBreedingInitiative\1.Data\16. Spidermites_AdrianK\models\onnx"
+#MODEL_PATH = r"\\CATALOGUE.CGIARAD.ORG\AcceleratedBreedingInitiative\1.Data\16. Spidermites_AdrianK\models\onnx"
 
 
 def rescale_t_classification(image, target_size=320):
@@ -589,40 +589,10 @@ class DamageClassifier():
         self.initialize(model_name)
 
         img_prec = np_image
-        print("**************")
-        print(img_prec.dtype)
-        print(img_prec.shape)
-        print(np.min(img_prec))
-        print(np.max(img_prec))
-        print("**************")
         img_prec = img_prec.astype(np.float32)/255.0
-        print("************** TO FLOAT")
-        print(img_prec.dtype)
-        print(img_prec.shape)
-        print(np.min(img_prec))
-        print(np.max(img_prec))
-        print("************** RESIZE ") 
         img_prec = rescale_t_classification(img_prec, 512)        
-        print("**************")
-        print(img_prec.dtype)
-        print(img_prec.shape)
-        print(np.min(img_prec))
-        print(np.max(img_prec))
-        print("************** CENTER CROP")
         img_prec = center_crop(img_prec, 512)
-        print("**************")
-        print(img_prec.dtype)
-        print(img_prec.shape)
-        print(np.min(img_prec))
-        print(np.max(img_prec))
-        print("**************")
-        #img_prec = normalize(img_prec, [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-        print("************** NORMALIZE")
-        print(img_prec.dtype)
-        print(img_prec.shape)
-        print(np.min(img_prec))
-        print(np.max(img_prec))
-        print("**************")
+        img_prec = normalize(img_prec, [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         img_prec = img_prec.astype(np.float32)
 
         # img_prec = cv.imread(r"D:\local_mydev\HuggingFace\phenotyping_pipeline\prec.png")
@@ -632,17 +602,12 @@ class DamageClassifier():
         
 
         img_prec = np.transpose(img_prec, (2,0,1))
-        print("**************")
-        print(img_prec.dtype)
-        print(img_prec.shape)
-        print(np.min(img_prec))
-        print(np.max(img_prec))
-        print("**************")
-        
-        save = img_prec.transpose(1,2,0)*255
-        save = cv.cvtColor(save, cv.COLOR_RGB2BGR)
 
-        cv.imwrite("prec.png", save)
+        
+        # save = img_prec.transpose(1,2,0)*255
+        # save = cv.cvtColor(save, cv.COLOR_RGB2BGR)
+
+        # cv.imwrite("prec.png", save)
 
         #img_prec = np.expand_dims(img_prec, axis=0)
 

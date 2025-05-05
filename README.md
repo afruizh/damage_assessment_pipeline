@@ -84,12 +84,18 @@ Create resources files, if required to bundle .qml and images inside the .exe:
 pyside6-rcc resources.qrc -o rc_resources.py
 ```
 
+Change to True this assignation in `GrassDamageAI.py`  if necesary
+
+```
+USE_RESOURCES = True  # Set to True to use resources.qrc
+```
+
 
 Create specifications file:
 
 ```bash
 cd app
-pyside6-deploy gui.py --init
+pyside6-deploy GrassDamageAI.py --init
 
 ```
 
@@ -100,8 +106,8 @@ title = GrassDamageAI
 icon = .\icon.ico
 
 modules = Core,Gui,Network,Qml,QmlModels,QmlMeta,OpenGL,QmlWorkerScript,QuickControls2,Quick,QuickTemplates2,Widgets,WebEngine,WebEngineCore,WebEngineQuick,WebEngineWidgets
-extra_args = --quiet --include-qt-plugins=qml --disable-console
 mode = standalone
+extra_args = --quiet --include-qt-plugins=qml --disable-console
 mode = release
 arch = "x86_64"
 ```
