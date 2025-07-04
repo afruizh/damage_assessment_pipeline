@@ -260,6 +260,10 @@ ApplicationWindow {
                 }
 
                 TabButton { 
+                    text: qsTr("Phenobox Damage Segmentation Batch Processing")
+                }
+
+                TabButton { 
                     text: qsTr("Webapp")
                 }
 
@@ -304,6 +308,19 @@ ApplicationWindow {
 
                     SegmentationPage {
                         id: segmentationPage
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                    }
+                    
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+
+
+                    PhenoboxDamageSegmentation {
+                        id: phenoboxDamageSgmentationPage
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                     }

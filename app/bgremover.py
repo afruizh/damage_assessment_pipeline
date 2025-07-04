@@ -800,3 +800,183 @@ class BatchProcessor():
                                        })
 
             print(f"Batch process loop finished. Processed {processed_count}/{total_files} files.")
+
+#********************************************************
+
+def apply_lut(mask_resized):
+
+    # Create a lookup table with shape (256, 1, 3)
+    lut = np.zeros((256, 1, 3), dtype=np.uint8)
+
+    # Define colors for specific classes
+    lut[1] = [255, 0, 0]   # class 1 -> red
+    lut[2] = [0, 255, 0]   # class 2 -> green
+    lut[3] = [0, 0, 255]   # class 3 -> blue
+    # Other values will remain black (or you can define them)
+
+    # Apply the custom colormap using applyColorMap
+    colored_img = cv.applyColorMap(mask_resized, lut)
+
+    return colored_img
+
+def mm_inference(img_path, model_input_size, ort_sess, use_logits=True):
+
+    if not isinstance(img_path, str):
+        img = img_path.copy()
+        orig_img = img.copy()
+    else:
+        img = cv.imread(img_path)
+        orig_img = img
+        img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+
+    # Preprocess
+    
+    img = cv.resize(img, model_input_size, interpolation=cv.INTER_LINEAR)
+    img = img.astype(np.float32)
+    mean = np.array([123.675, 116.28, 103.53])
+    std = np.array([58.395, 57.12, 57.375])
+    img = (img - mean) / std
+    img = img.transpose(2, 0, 1)  # (H, W, C) -> (C, H, W)
+    img = np.expand_dims(img, 0)  # (1, C, H, W)
+
+    img_prec = img.astype(np.float32)
+
+    outputs = ort_sess.run(None, {'input': img_prec})
+
+    orig_h, orig_w = orig_img.shape[:2]
+
+    # Postprocess
+    if use_logits:
+        logits = outputs[0][0]  # shape: (4, 128, 128)
+        # Upsample logits to (4, 512, 512) using bilinear interpolation
+        logits_upsampled = np.stack([
+            cv.resize(logits[c], (orig_w, orig_h), interpolation=cv.INTER_LINEAR_EXACT)
+            for c in range(logits.shape[0])
+        ])
+        mask_resized = np.argmax(logits_upsampled, axis=0)  # shape: (512, 512)
+        mask_resized = mask_resized.astype(np.uint8)
+    else:
+        mask = np.argmax(outputs[0], axis=1)[0]  # (128, 128)
+        # If you want to match the original image size:        
+        mask_resized = cv.resize(mask.astype(np.uint8), (orig_w, orig_h), interpolation=cv.INTER_NEAREST)
+
+    colored_img = apply_lut(mask_resized)
+
+    print(np.unique(colored_img))
+
+    return colored_img, mask_resized
+
+# Tiled inference: split image into tiles, run inference on each, then stitch back together
+def mm_inference_tiled(img_path, ort_sess, tile_size=(512, 512), overlap=64):
+
+    if isinstance(img_path, str):
+        img = cv.imread(img_path)
+        img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+    else:
+        img = img_path.copy()
+    orig_h, orig_w = img.shape[:2]
+
+    stride_y = tile_size[0] - overlap
+    stride_x = tile_size[1] - overlap
+
+    mask_full = np.zeros((orig_h, orig_w), dtype=np.uint8)
+    count_map = np.zeros((orig_h, orig_w), dtype=np.uint8)
+
+    for y in range(0, orig_h, stride_y):
+        for x in range(0, orig_w, stride_x):
+            y1 = y
+            x1 = x
+            y2 = min(y1 + tile_size[0], orig_h)
+            x2 = min(x1 + tile_size[1], orig_w)
+            tile = img[y1:y2, x1:x2]
+
+            # Pad tile if needed
+            pad_bottom = tile_size[0] - (y2 - y1)
+            pad_right = tile_size[1] - (x2 - x1)
+            if pad_bottom > 0 or pad_right > 0:
+                tile = cv.copyMakeBorder(tile, 0, pad_bottom, 0, pad_right, cv.BORDER_REFLECT_101)
+
+            # Preprocess
+            colored_img, mask_tile = mm_inference(tile, tile_size, ort_sess)
+
+            # Remove padding
+            mask_tile = mask_tile[:y2 - y1, :x2 - x1]
+
+            mask_full[y1:y2, x1:x2] += mask_tile
+            count_map[y1:y2, x1:x2] += 1
+
+    # Average overlapping regions
+    mask_full = mask_full // np.maximum(count_map, 1)
+
+    colored_img = apply_lut(mask_full)
+    # plt.imshow(colored_img)
+    # plt.title("Tiled Segmentation Result")
+    # plt.axis('off')
+    # plt.show()
+    return colored_img, mask_full
+
+
+class DamageSegmentor():
+
+    def __init__(self):
+        self.ort_sess = None
+
+    def initialize(self, ):
+
+        if self.ort_sess is None:
+            # Load model
+            model_filepath = os.path.join(MODEL_PATH, "phenobox_damage_segmentation.onnx")
+            providers = [
+                ("CUDAExecutionProvider", {
+                    "device_id": 0,
+                })
+            ]
+            self.ort_sess = ort.InferenceSession(model_filepath, providers=providers)
+
+
+    # def inference(self, np_image, threshold=80):
+
+
+    def inference_file(self, filename):
+
+        self.initialize()
+
+        model_input_size = (512, 512)
+        colored_img, mask = mm_inference_tiled(filename, self.ort_sess, tile_size=model_input_size, overlap=64)
+
+        return colored_img
+
+    def batch_processing(self, folder, output_folder, format="tiff"
+                        , progress_callback=None
+                        , interruption_check=None):
+        
+        processor = BatchProcessor()
+
+        def processFunction(filepath, output_files):
+
+            if os.path.exists(output_files[0]):
+                print(f"File already exists {output_files[0]}")
+            else:
+                segmented = self.inference_file(filepath)
+                # cv.imwrite(output_files[0], mask)
+                # print(f"File saved {output_files[0]}")
+                # cv.imwrite(output_files[1], binary_mask)
+                # print(f"File saved {output_files[1]}")
+                #cv.imwrite(output_files[0], cv.cvtColor(segmented, cv.COLOR_RGB2BGR))
+                cv.imwrite(output_files[0], segmented)
+                print(f"File saved {output_files[0]}")
+                
+
+        processor.batch_process(input_dir=folder
+                                , output_dir=output_folder
+                                , processing_fc=processFunction
+                                , pattern = '**/*.' + format
+                                , output_suffixes = ["segmented"]
+                                , progress_callback=progress_callback
+                                , interruption_check=interruption_check
+                                )
+
+
+
+
+

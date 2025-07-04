@@ -1,5 +1,7 @@
 from bgremover import DamageClassifier
 from bgremover import BackgroundRemover
+from bgremover import DamageSegmentor
+
 
 
 class Processor():
@@ -65,6 +67,19 @@ class Processor():
                                                     , model
                                                     , progress_callback = self.progress_callback
                                                     , interruption_check = self.interruption_check)
+            results.update({"results":res})
+
+        elif task == "batch_phenobox_damage_segmentation":
+
+            input_folder = self.params.get("input_folder")
+            output_folder = self.params.get("output_folder")
+
+            damage_segmentor = DamageSegmentor()
+            res = damage_segmentor.batch_processing(input_folder
+                                              , output_folder
+                                              , progress_callback = self.progress_callback
+                                              , interruption_check = self.interruption_check
+                                            )
             results.update({"results":res})
 
         else:
