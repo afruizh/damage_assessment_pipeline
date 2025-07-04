@@ -45,7 +45,15 @@ Rectangle {
             Button {
                 text: "Browse"
                 onClicked: {
-                    folderDialog.open()
+                    if (isLinux) {
+                        const folder = FolderHelper.pickFolder(appSettings.lastInputFolder || "")
+                        if (folder !== "") {
+                            folderPath.text = folder
+                            appSettings.lastInputFolder = folder
+                        }
+                    } else {
+                        folderDialog.open()
+                    }
                 }
             }
         }
@@ -77,8 +85,19 @@ Rectangle {
             Button {
                 text: "Browse"
                 onClicked: {
-                    outputFolderDialog.open()
+                    //outputFolderDialog.open()
+
+                    if (isLinux) {
+                        const folder = FolderHelper.pickFolder(appSettings.lastInputFolder || "")
+                        if (folder !== "") {
+                            outputFolderPath.text = folder
+                            appSettings.lastOutputFolderr = folder
+                        }
+                    } else {
+                        outputFolderDialog.open()
+                    }
                 }
+                
             }
         }
 

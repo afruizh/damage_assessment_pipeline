@@ -3,6 +3,7 @@ import os
 import time
 import subprocess
 import webbrowser
+import platform
 
 #from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import QApplication
@@ -39,6 +40,24 @@ if USE_RESOURCES:
     import rc_resources
     RES_PREFIX = ":/"
 
+
+# folder_picker.py
+from PySide6.QtCore import QObject, Slot, Property
+from PySide6.QtWidgets import QFileDialog
+
+class FolderPicker(QObject):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    @Slot(str, result=str)
+    def pickFolder(self, initialPath=""):
+        folder = QFileDialog.getExistingDirectory(
+            None,
+            "Select Folder",
+            initialPath,
+            QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks
+        )
+        return folder or ""
 
 # class Worker(QThread):
 #     finished = Signal()  # Signal emitted when the thread finishes processing
@@ -212,6 +231,16 @@ if __name__ == "__main__":
     engine = QQmlApplicationEngine()
     engine.quit.connect(app.quit)
     engine.rootContext().setContextProperty("processorInterface", processorInterface)
+
+    is_linux = platform.system().lower() == "linux"
+
+    # Only expose FolderHelper on Linux
+    if is_linux:
+        folder_picker = FolderPicker()
+        engine.rootContext().setContextProperty("FolderHelper", folder_picker)
+
+    engine.rootContext().setContextProperty("isLinux", is_linux)
+
     #engine.load(QUrl("view.qml"))
     engine.load(RES_PREFIX + "view.qml")
 
