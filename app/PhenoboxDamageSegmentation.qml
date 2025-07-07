@@ -91,7 +91,7 @@ Rectangle {
                         const folder = FolderHelper.pickFolder(appSettings.lastInputFolder || "")
                         if (folder !== "") {
                             outputFolderPath.text = folder
-                            appSettings.lastOutputFolderr = folder
+                            appSettings.lastOutputFolder = folder
                         }
                     } else {
                         outputFolderDialog.open()
