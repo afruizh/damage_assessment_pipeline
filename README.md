@@ -150,6 +150,7 @@ pip install pandas
 pip install opencv-python
 pip install openpyxl
 pip install onnxruntime-gpu
+pip install plantcv
 ```
 additional dlls if necessary (bundle with torch in some cases):
 

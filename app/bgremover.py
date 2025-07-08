@@ -746,8 +746,14 @@ class BatchProcessor():
             # Get list of files in folder and subfolders
             pattern = '**/*.'  + format
             files = glob.glob(pattern, root_dir=input_dir, recursive=True)
+            pattern = '**/*.'  + format.upper()
+            files += glob.glob(pattern, root_dir=input_dir, recursive=True) #fix linux not handling uppercase
+            files = list(set(files)) # remove duplicates (Windows)
             total_files = len(files)
             processed_count = 0
+
+            if total_files == 0:
+                return
 
             # Emit initial progress if needed
             if progress_callback:
@@ -975,6 +981,98 @@ class DamageSegmentor():
                                 , progress_callback=progress_callback
                                 , interruption_check=interruption_check
                                 )
+
+def calibrate_color(img_file, output_filename, color_matrix_orientation = 3, color_matrix_file = None):
+    """
+    img_file: input image filename
+    output_filename: list of filenames for the output images
+
+    """
+
+    import plantcv.plantcv as pcv
+
+    def show_color_mask(img, mask):
+
+        mask = mask.astype(np.uint8)
+
+        ret,thresh1 = cv.threshold(mask,1,255,cv.THRESH_BINARY)
+        mask2 = cv.cvtColor(thresh1, cv.COLOR_GRAY2BGR)
+        va_locs = np.where((mask2==[255,255,255]).all(axis=2))
+
+        res = img.copy()
+        res[va_locs] = (255,0,0)
+
+        return res
+
+    ############### Processing ################
+
+    #img, path, filename =pcv.readimage(filename=img_file)
+    img = cv.imread(img_file)
+    rgb_img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+
+    std_color_matrix = pcv.transform.std_color_matrix(pos=color_matrix_orientation)
+
+    if (color_matrix_file == None):
+        # #Calibrating color
+        card_mask = pcv.transform.detect_color_card(rgb_img=rgb_img, background='light', radius=10)
+        #Make a color card matrix 
+        headers, card_matrix = pcv.transform.get_color_matrix(rgb_img=rgb_img, mask=card_mask)
+        
+        # mask_output = output_filename[0].replace(".JPG", "_mask.PNG")
+        # cv.imwrite(mask_output, card_mask)
+
+        # mask_2 = show_color_mask(rgb_img, card_mask)
+        # mask_output2 = output_filename[0].replace(".JPG", "_mask_overlay.PNG")
+        # cv.imwrite(mask_output2, cv.cvtColor(mask_2, cv.COLOR_RGB2BGR))
+
+        bgr_img_cc = pcv.transform.affine_color_correction(rgb_img, card_matrix, std_color_matrix)
+
+        # save color matrix?
+    else:
+
+        card_matrix = pcv.transform.load_matrix(filename = color_matrix_file)
+        bgr_img_cc = pcv.transform.affine_color_correction(rgb_img, card_matrix, std_color_matrix)
+
+    rgb_img_cc = cv.cvtColor(bgr_img_cc, cv.COLOR_BGR2RGB)
+
+    cv.imwrite(output_filename[0], cv.cvtColor(rgb_img_cc, cv.COLOR_RGB2BGR))
+
+    #pcv.print_image(img_cc, output_filename[0]) # color correction + crop
+    #pcv.print_image(labeled_imgs[0],output_filename[1]) # otsu threshold
+    #pcv.print_image(labeled_imgs[1],output_filename[2]) # triangle threshold
+    #pcv.print_image(labeled_imgs[2],output_filename[3]) # grid thresholds
+    
+
+    return output_filename
+
+def batch_color_calibration(parameters
+                        , progress_callback=None
+                        , interruption_check=None):
+
+    processor = BatchProcessor()
+
+    def processFunction(filepath, output_files):
+
+        if os.path.exists(output_files[0]):
+            print(f"File already exists {output_files[0]}")
+        else:
+            calibrate_color(filepath, output_files)
+
+    input_folder = parameters.get("input_folder")
+    output_folder = parameters.get("output_folder")
+
+    format = "jpg"
+            
+
+    processor.batch_process(input_dir=input_folder
+                            , output_dir=output_folder
+                            , processing_fc=processFunction
+                            , pattern = '**/*.' + format
+                            , output_suffixes = ["cc"]
+                            , progress_callback=progress_callback
+                            , interruption_check=interruption_check
+                            )
+
 
 
 

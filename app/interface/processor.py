@@ -82,6 +82,18 @@ class Processor():
                                             )
             results.update({"results":res})
 
+        elif task == "batch_color_calibration":
+
+            from bgremover import batch_color_calibration
+
+            batch_color_calibration(results
+                                    , progress_callback = self.progress_callback
+                                    , interruption_check = self.interruption_check)
+            
+            #results.update({"results":res})
+
+
+
         else:
             results.update({"status": "error", "message": "Invalid task specified."})
 

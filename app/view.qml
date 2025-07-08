@@ -9,8 +9,8 @@ import QtQuick.Effects
 ApplicationWindow {
     id: mainWindow
     visible: true
-    width: 850
-    height: 630
+    width: 1150
+    height: 830
     title: qsTr(Qt.application.name + " - Damage Assessment Pipeline v" + Qt.application.version)
     minimumWidth: 630
 
@@ -260,6 +260,10 @@ ApplicationWindow {
                 }
 
                 TabButton { 
+                    text: qsTr("Color Calibration")
+                }
+
+                TabButton { 
                     text: qsTr("Phenobox Damage Segmentation Batch Processing")
                 }
 
@@ -308,6 +312,19 @@ ApplicationWindow {
 
                     SegmentationPage {
                         id: segmentationPage
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                    }
+                    
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+
+
+                    ColorCalibrationPage {
+                        id: colorCalibratoinPage
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                     }
